@@ -1,9 +1,10 @@
 #include <iostream>
 #include <chrono>
-#include <random>
-#include "R3DS/ObjIO/ObjIO.h"
-#include "R3DS/Deform/Deform.h"
-#include "window.h"
+#include "Internship/ObjIO/ObjIO.h"
+#include "Internship/Deform/Deform.h"
+#include "Internship/Demo/Window.h"
+#include "Internship/Rendering/OpenGL/Mesh.h"
+#include "Internship/Rendering/OpenGL/Shader.h"
 
 using timer = std::chrono::system_clock;
 using units = std::chrono::milliseconds;
@@ -24,25 +25,25 @@ int main()
     size_t time = 0;
 
     auto then = timer::now();
-    auto source = R3DS::ObjIO::read(source_path);
+    auto source = Internship::ObjIO::read(source_path);
     auto elapsed = std::chrono::duration_cast<units>(timer::now() - then).count();
     std::cout << "\n to-deform read : " << elapsed << ' ' << unit_str << "\n\n";
     time += elapsed;
 
     then = timer::now();
-    auto rest = R3DS::ObjIO::read(rest_path);
+    auto rest = Internship::ObjIO::read(rest_path);
     elapsed = std::chrono::duration_cast<units>(timer::now() - then).count();
     std::cout << " rest read : " << elapsed << ' ' << unit_str << "\n\n";
     time += elapsed;
 
     then = timer::now();
-    auto deformed = R3DS::ObjIO::read(deformed_path);
+    auto deformed = Internship::ObjIO::read(deformed_path);
     elapsed = std::chrono::duration_cast<units>(timer::now() - then).count();
     std::cout << " deformed read : " << elapsed << ' ' << unit_str << "\n\n";
     time += elapsed;
 
     then = timer::now();
-    auto houdini = R3DS::ObjIO::read(houdini_path);
+    auto houdini = Internship::ObjIO::read(houdini_path);
     elapsed = std::chrono::duration_cast<units>(timer::now() - then).count();
     std::cout << " houdini read : " << elapsed << ' ' << unit_str << "\n\n";
 
@@ -55,7 +56,7 @@ int main()
         };
 
     then = timer::now();
-    auto result = R3DS::Deform::lattice<R3DS::Deform::SpatialViews::KDTree3D>(
+    auto result = Internship::Deform::lattice<Internship::Deform::SpatialViews::KDTree3D>(
         source,
         rest,
         deformed,
@@ -79,14 +80,14 @@ int main()
     }
     std::cout << " avg error : " << avg_error / n << "\n\n";
 
-    R3DS::ObjIO::write(result, result_path);
+    Internship::ObjIO::write(result, result_path);
 
-    window::create(1600, 900);
-    auto* mesh = new R3DS::Rendering::OpenGL::Mesh(result);
-    auto* shader = new R3DS::Rendering::OpenGL::Shader(shaders + "main.vert", shaders + "main.frag");
-    window::load(mesh, shader, R3DS::Rendering::Camera {});
-    window::run();
-    window::destroy();
+    Internship::Demo::Window::create(1600, 900);
+    auto* mesh = new Internship::Rendering::OpenGL::Mesh(result);
+    auto* shader = new Internship::Rendering::OpenGL::Shader(shaders + "main.vert", shaders + "main.frag");
+    Internship::Demo::Window::load(mesh, shader, Internship::Rendering::Camera {});
+    Internship::Demo::Window::run();
+    Internship::Demo::Window::destroy();
 
     std::cin.get();
     return 0;

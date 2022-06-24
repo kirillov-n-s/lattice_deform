@@ -3,9 +3,9 @@
 #include "WriteHelpers.h"
 #include "../Model.h"
 
-namespace R3DS::ObjIO
+namespace Internship::ObjIO
 {
-    R3DS::Model read(const std::string &path)
+    Internship::Model read(const std::string &path)
     {
         std::vector<glm::vec4> vertices;
         std::vector<glm::vec3> texcoords, normals;
@@ -130,7 +130,7 @@ namespace R3DS::ObjIO
         };
     }
 
-    void write(const R3DS::Model &model, const std::string &path)
+    void write(const Internship::Model &model, const std::string &path)
     {
         std::ofstream file { path };
 

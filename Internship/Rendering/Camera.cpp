@@ -1,6 +1,6 @@
 #include "Camera.h"
 
-namespace R3DS::Rendering
+namespace Internship::Rendering
 {
     void Camera::update_derived_vectors()
     {

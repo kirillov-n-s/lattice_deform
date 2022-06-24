@@ -2,7 +2,7 @@
 #include "../Conversion.h"
 #include "../../Model.h"
 
-namespace R3DS::Rendering::OpenGL
+namespace Internship::Rendering::OpenGL
 {
     Mesh::Mesh(const Model &model)
     {

@@ -3,12 +3,12 @@
 #include <glm/vec4.hpp>
 #include <glm/vec3.hpp>
 
-namespace R3DS
+namespace Internship
 {
     class Model;
 }
 
-namespace R3DS::Rendering::Conversion
+namespace Internship::Rendering::Conversion
 {
     struct Vertex
     {
@@ -35,9 +35,9 @@ namespace R3DS::Rendering::Conversion
 }
 
 template<>
-struct std::hash<R3DS::Rendering::Conversion::Index>
+struct std::hash<Internship::Rendering::Conversion::Index>
 {
-    size_t operator()(const R3DS::Rendering::Conversion::Index &index) const
+    size_t operator()(const Internship::Rendering::Conversion::Index &index) const
     {
         auto hp = std::hash<int64_t>{}(index.point);
         auto ht = std::hash<int64_t>{}(index.texcoord);

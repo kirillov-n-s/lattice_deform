@@ -1,6 +1,6 @@
 #include "Model.h"
 
-namespace R3DS
+namespace Internship
 {
     Model::Model(const std::vector<glm::vec4> &points,
                  const std::vector<glm::vec3> &texcoords,

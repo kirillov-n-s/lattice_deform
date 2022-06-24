@@ -1,6 +1,6 @@
 #include "ReadHelpers.h"
 
-namespace R3DS::ObjIO::ReadHelpers
+namespace Internship::ObjIO::ReadHelpers
 {
     glm::vec4 readPoint(std::ifstream &file)
     {

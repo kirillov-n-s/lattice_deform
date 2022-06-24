@@ -1,7 +1,7 @@
 #include <iterator>
 #include "UniformGrid.h"
 
-namespace R3DS::Deform::SpatialViews
+namespace Internship::Deform::SpatialViews
 {
     glm::uvec3 UniformGrid::index(const glm::vec3 &point) const
     {

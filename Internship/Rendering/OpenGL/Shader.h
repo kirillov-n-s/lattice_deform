@@ -8,7 +8,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-namespace R3DS::Rendering::OpenGL
+namespace Internship::Rendering::OpenGL
 {
     template <typename>
     constexpr bool is_always_false = false;
@@ -31,7 +31,7 @@ namespace R3DS::Rendering::OpenGL
     };
 }
 
-namespace R3DS::Rendering::OpenGL
+namespace Internship::Rendering::OpenGL
 {
     template<typename U>
     void Shader::set_uniform(const std::string &name, U value) const

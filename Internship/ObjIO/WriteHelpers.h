@@ -2,7 +2,7 @@
 #include <vector>
 #include <fstream>
 
-namespace R3DS::ObjIO::WriteHelpers
+namespace Internship::ObjIO::WriteHelpers
 {
     void writeFaceFull(
         std::ofstream&,

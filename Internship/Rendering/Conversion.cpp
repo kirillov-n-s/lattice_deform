@@ -1,7 +1,7 @@
 #include "Conversion.h"
 #include "../Model.h"
 
-namespace R3DS::Rendering::Conversion
+namespace Internship::Rendering::Conversion
 {
     Index makeIndex(const Model &model, size_t i)
     {

@@ -3,7 +3,7 @@
 #include "KDTree3D.h"
 #include "../BoundingBox.h"
 
-namespace R3DS::Deform::SpatialViews
+namespace Internship::Deform::SpatialViews
 {
     KDTree3D::Branch::Branch(float split)
             : split(split)

@@ -2,12 +2,12 @@
 #include <vector>
 #include "../../Model.h"
 
-namespace R3DS
+namespace Internship
 {
     struct BoundingBox;
 }
 
-namespace R3DS::Deform::SpatialViews
+namespace Internship::Deform::SpatialViews
 {
     class KDTree3D
     {
@@ -55,7 +55,7 @@ namespace R3DS::Deform::SpatialViews
     };
 }
 
-namespace R3DS::Deform::SpatialViews
+namespace Internship::Deform::SpatialViews
 {
     template<typename Function>
     void KDTree3D::traverse(const BoundingBox &boundingBox, Function function) const

@@ -1,6 +1,6 @@
 #include "Shader.h"
 
-namespace R3DS::Rendering::OpenGL
+namespace Internship::Rendering::OpenGL
 {
     int Shader::get_uniform_location(const std::string &name) const
     {

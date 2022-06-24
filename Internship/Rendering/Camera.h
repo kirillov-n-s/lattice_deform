@@ -2,7 +2,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-namespace R3DS::Directions
+namespace Internship::Directions
 {
     const glm::vec3 ZERO = {0.f, 0.f, 0.f };
     const glm::vec3 RIGHT = {1.f, 0.f, 0.f };
@@ -13,7 +13,7 @@ namespace R3DS::Directions
     const glm::vec3 FRONT = {0.f, 0.f, -1.f };
 }
 
-namespace R3DS::Rendering
+namespace Internship::Rendering
 {
     class Camera
     {

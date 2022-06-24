@@ -3,12 +3,12 @@
 #include <unordered_map>
 #include <GL/glew.h>
 
-namespace R3DS
+namespace Internship
 {
     class Model;
 }
 
-namespace R3DS::Rendering::OpenGL
+namespace Internship::Rendering::OpenGL
 {
     constexpr float PI = 3.14159265f;
 

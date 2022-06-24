@@ -1,7 +1,7 @@
 #include "BoundingBox.h"
 #include "../Model.h"
 
-namespace R3DS
+namespace Internship
 {
     glm::vec3 BoundingBox::diag() const
     {

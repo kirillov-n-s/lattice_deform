@@ -5,13 +5,13 @@
 #include "SpatialViews/KDTree3D.h"
 #include "../Model.h"
 
-namespace R3DS::Deform
+namespace Internship::Deform
 {
     template<typename SpatialView, typename Kernel, typename... Args>
     Model lattice(const Model&, const Model&, const Model&, const Kernel&, float, Args&&...);
 }
 
-namespace R3DS::Deform
+namespace Internship::Deform
 {
     template<typename SpatialView, typename Kernel, typename... Args>
     Model lattice(const Model &source, const Model &rest, const Model &deformed,

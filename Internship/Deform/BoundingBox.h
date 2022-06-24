@@ -2,7 +2,7 @@
 #include <glm/vec3.hpp>
 #include <glm/common.hpp>
 
-namespace R3DS
+namespace Internship
 {
     struct BoundingBox
     {

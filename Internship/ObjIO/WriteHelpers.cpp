@@ -1,6 +1,6 @@
 #include "WriteHelpers.h"
 
-namespace R3DS::ObjIO::WriteHelpers
+namespace Internship::ObjIO::WriteHelpers
 {
     void writeFaceFull(
         std::ofstream &file,

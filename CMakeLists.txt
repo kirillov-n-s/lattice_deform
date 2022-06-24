@@ -4,19 +4,19 @@ project(internship)
 set(CMAKE_CXX_STANDARD 17)
 
 add_executable(internship main.cpp
-        R3DS/Model.h R3DS/Model.cpp
-        R3DS/ObjIO/ObjIO.h R3DS/ObjIO/ObjIO.cpp
-        R3DS/Deform/Deform.h
-        R3DS/Rendering/Camera.h R3DS/Rendering/Camera.cpp
-        R3DS/Rendering/OpenGL/Mesh.h R3DS/Rendering/OpenGL/Mesh.cpp
-        R3DS/Rendering/OpenGL/Shader.h R3DS/Rendering/OpenGL/Shader.cpp
-        window.h window.cpp
-        R3DS/Deform/BoundingBox.h R3DS/Deform/BoundingBox.cpp
-        R3DS/Deform/SpatialViews/UniformGrid.h R3DS/Deform/SpatialViews/UniformGrid.cpp
-        R3DS/Deform/SpatialViews/KDTree3D.h R3DS/Deform/SpatialViews/KDTree3D.cpp
-        R3DS/Rendering/Conversion.h R3DS/Rendering/Conversion.cpp
-        R3DS/ObjIO/ReadHelpers.h R3DS/ObjIO/ReadHelpers.cpp
-        R3DS/ObjIO/WriteHelpers.h R3DS/ObjIO/WriteHelpers.cpp)
+        Internship/Model.h Internship/Model.cpp
+        Internship/ObjIO/ObjIO.h Internship/ObjIO/ObjIO.cpp
+        Internship/Deform/Deform.h
+        Internship/Rendering/Camera.h Internship/Rendering/Camera.cpp
+        Internship/Rendering/OpenGL/Mesh.h Internship/Rendering/OpenGL/Mesh.cpp
+        Internship/Rendering/OpenGL/Shader.h Internship/Rendering/OpenGL/Shader.cpp
+        Internship/Demo/Window.h Internship/Demo/Window.cpp
+        Internship/Deform/BoundingBox.h Internship/Deform/BoundingBox.cpp
+        Internship/Deform/SpatialViews/UniformGrid.h Internship/Deform/SpatialViews/UniformGrid.cpp
+        Internship/Deform/SpatialViews/KDTree3D.h Internship/Deform/SpatialViews/KDTree3D.cpp
+        Internship/Rendering/Conversion.h Internship/Rendering/Conversion.cpp
+        Internship/ObjIO/ReadHelpers.h Internship/ObjIO/ReadHelpers.cpp
+        Internship/ObjIO/WriteHelpers.h Internship/ObjIO/WriteHelpers.cpp)
 
 target_link_libraries(internship opengl32.lib)
 target_link_libraries(internship glew32.lib)

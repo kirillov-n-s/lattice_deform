@@ -3,7 +3,7 @@
 #include "../BoundingBox.h"
 #include "../../Model.h"
 
-namespace R3DS::Deform::SpatialViews
+namespace Internship::Deform::SpatialViews
 {
     class UniformGrid
     {
@@ -32,7 +32,7 @@ namespace R3DS::Deform::SpatialViews
     };
 }
 
-namespace R3DS::Deform::SpatialViews
+namespace Internship::Deform::SpatialViews
 {
     template<typename Function>
     void UniformGrid::traverse(const BoundingBox &boundingBox, Function function)
