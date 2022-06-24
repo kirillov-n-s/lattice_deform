@@ -1,10 +1,10 @@
 #include <iostream>
 #include <chrono>
-#include "Internship/ObjIO/ObjIO.h"
-#include "Internship/Deform/Deform.h"
-#include "Internship/Demo/Window.h"
-#include "Internship/Rendering/OpenGL/Mesh.h"
-#include "Internship/Rendering/OpenGL/Shader.h"
+#include "Lattice/ObjIO/ObjIO.h"
+#include "Lattice/Deform/Deform.h"
+#include "Lattice/Demo/Window.h"
+#include "Lattice/Rendering/OpenGL/Mesh.h"
+#include "Lattice/Rendering/OpenGL/Shader.h"
 
 using timer = std::chrono::system_clock;
 using units = std::chrono::milliseconds;
@@ -25,25 +25,25 @@ int main()
     size_t time = 0;
 
     auto then = timer::now();
-    auto source = Internship::ObjIO::read(source_path);
+    auto source = Lattice::ObjIO::read(source_path);
     auto elapsed = std::chrono::duration_cast<units>(timer::now() - then).count();
     std::cout << "\n to-deform read : " << elapsed << ' ' << unit_str << "\n\n";
     time += elapsed;
 
     then = timer::now();
-    auto rest = Internship::ObjIO::read(rest_path);
+    auto rest = Lattice::ObjIO::read(rest_path);
     elapsed = std::chrono::duration_cast<units>(timer::now() - then).count();
     std::cout << " rest read : " << elapsed << ' ' << unit_str << "\n\n";
     time += elapsed;
 
     then = timer::now();
-    auto deformed = Internship::ObjIO::read(deformed_path);
+    auto deformed = Lattice::ObjIO::read(deformed_path);
     elapsed = std::chrono::duration_cast<units>(timer::now() - then).count();
     std::cout << " deformed read : " << elapsed << ' ' << unit_str << "\n\n";
     time += elapsed;
 
     then = timer::now();
-    auto houdini = Internship::ObjIO::read(houdini_path);
+    auto houdini = Lattice::ObjIO::read(houdini_path);
     elapsed = std::chrono::duration_cast<units>(timer::now() - then).count();
     std::cout << " houdini read : " << elapsed << ' ' << unit_str << "\n\n";
 
@@ -56,7 +56,7 @@ int main()
         };
 
     then = timer::now();
-    auto result = Internship::Deform::lattice<Internship::Deform::SpatialViews::KDTree3D>(
+    auto result = Lattice::Deform::lattice<Lattice::Deform::SpatialViews::KDTree3D>(
         source,
         rest,
         deformed,
@@ -80,14 +80,14 @@ int main()
     }
     std::cout << " avg error : " << avg_error / n << "\n\n";
 
-    Internship::ObjIO::write(result, result_path);
+    Lattice::ObjIO::write(result, result_path);
 
-    Internship::Demo::Window::create(1600, 900);
-    auto* mesh = new Internship::Rendering::OpenGL::Mesh(result);
-    auto* shader = new Internship::Rendering::OpenGL::Shader(shaders + "main.vert", shaders + "main.frag");
-    Internship::Demo::Window::load(mesh, shader, Internship::Rendering::Camera {});
-    Internship::Demo::Window::run();
-    Internship::Demo::Window::destroy();
+    Lattice::Demo::Window::create(1600, 900);
+    auto* mesh = new Lattice::Rendering::OpenGL::Mesh(result);
+    auto* shader = new Lattice::Rendering::OpenGL::Shader(shaders + "main.vert", shaders + "main.frag");
+    Lattice::Demo::Window::load(mesh, shader, Lattice::Rendering::Camera {});
+    Lattice::Demo::Window::run();
+    Lattice::Demo::Window::destroy();
 
     std::cin.get();
     return 0;
