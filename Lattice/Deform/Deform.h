@@ -1,86 +1,117 @@
-#pragma once
+#ifndef LATTICE_DEFORM_DEFORM_H
+#define LATTICE_DEFORM_DEFORM_H
+
 #include <stdexcept>
 #include <glm/gtx/norm.hpp>
 #include "SpatialViews/UniformGrid.h"
 #include "SpatialViews/KDTree3D.h"
 #include "../Model.h"
 
-namespace Lattice::Deform
-{
-    template<typename SpatialView, typename Kernel, typename... Args>
-    Model lattice(const Model&, const Model&, const Model&, const Kernel&, float, Args&&...);
+namespace Lattice::Deform {
+    template<
+        typename SpatialView,
+        typename Kernel,
+        typename... SpatialViewArgs>
+    Model lattice(
+        const Model &restPointIt,
+        const Model &rest,
+        const Model &deformed,
+        const Kernel &kernel,
+        const float radius,
+        SpatialViewArgs&&... spatialViewArgs);
 }
 
+
+
+
+
+
+
+
+
+//Implementation
 namespace Lattice::Deform
 {
-    template<typename SpatialView, typename Kernel, typename... Args>
-    Model lattice(const Model &source, const Model &rest, const Model &deformed,
-                  const Kernel &kernel, float radius, Args&&... args)
+    template<
+        typename SpatialView,
+        typename Kernel,
+        typename... SpatialViewArgs>
+    Model lattice(
+        const Model &toDeform,
+        const Model &rest,
+        const Model &deformed,
+        const Kernel &kernel,
+        const float radius,
+        SpatialViewArgs&&... spatialViewArgs)
     {
-        const auto& rest_points = rest.points();
-        const auto& rest_indices = rest.pointIndices();
-        const auto& deformed_points = deformed.points();
-        const auto& deformed_indices = deformed.pointIndices();
+        const auto& restPoints = rest.points();
+        const auto& restIndices = rest.pointIndices();
+        const auto& deformedPoints = deformed.points();
+        const auto& deformedIndices = deformed.pointIndices();
 
-        auto rest_point_count = rest_points.size();
-        auto rest_index_count = rest_indices.size();
-        auto deformed_point_count = deformed_points.size();
-        auto deformed_index_count = deformed_indices.size();
-
-        if (rest_point_count != deformed_point_count || rest_index_count != deformed_index_count)
+        if (restIndices != deformedIndices)
             throw std::runtime_error("Rest and deformed geometry mismatch.");
 
-        const auto& source_points = source.points();
-        auto result_points = source_points;
+        const auto& toDeformPoints = toDeform.points();
+        auto resultPoints = toDeformPoints;
 
-        const auto& bbox = makeBoundingBox(source);
-        SpatialView spatialView
-        {
-            rest_points.begin(), rest_points.end(),
-            { bbox.min - radius, bbox.max + radius },
-            std::forward<Args>(args)...
+        const BoundingBox& boundingBox = makeBoundingBox(toDeform);
+
+        SpatialView spatialView {
+            restPoints.begin(),
+            restPoints.end(),
+            { boundingBox.min - radius, boundingBox.max + radius },
+            std::forward<SpatialViewArgs>(spatialViewArgs)...
         };
 
-        const auto& rest_begin = rest_points.begin();
-        const auto& deformed_begin = deformed_points.begin();
-        const auto& source_begin = source_points.begin();
-        const auto& source_end = source_points.end();
-        const auto& result_begin = result_points.begin();
-        for (auto sourceIt = source_begin; sourceIt != source_end; sourceIt++)
-        {
+        const auto& restPointsBegin = restPoints.begin();
+        const auto& deformedPointsBegin = deformedPoints.begin();
+        const auto& toDeformPointsBegin = toDeformPoints.begin();
+        const auto& toDeformPointsEnd = toDeformPoints.end();
+        const auto& resultPointsBegin = resultPoints.begin();
+        for (auto toDeformPointIt = toDeformPointsBegin; toDeformPointIt != toDeformPointsEnd; toDeformPointIt++) {
             glm::vec3 offset { 0.f };
             float weights = 0.f, weight;
 
             spatialView.traverse(
                 {
-                    glm::vec3{*sourceIt - radius},
-                    glm::vec3{*sourceIt + radius}
+                    glm::vec3{*toDeformPointIt - radius},
+                    glm::vec3{*toDeformPointIt + radius}
                 },
-                [&sourceIt, &deformed_begin, &rest_begin, &offset, &radius, &weight, &kernel, &weights]
-                (const auto& restIt)
+                [&toDeformPointIt,
+                 &deformedPointsBegin,
+                 &restPointsBegin,
+                 &offset,
+                 &radius,
+                 &weight,
+                 &kernel,
+                 &weights]
+                (const auto& restPointIt)
                 {
-                    auto distance = glm::distance(*sourceIt, *restIt);
-                    offset +=
-                            glm::vec3 { (*(deformed_begin + (restIt - rest_begin)) - *restIt) }
-                            * (distance <= radius
-                               ? (weight = kernel(distance, radius), weights += weight, weight)
-                               : 0.f);
+                    const float distance = glm::distance(*toDeformPointIt, *restPointIt);
+                    offset
+                    += glm::vec3 { (*(deformedPointsBegin + (restPointIt - restPointsBegin)) - *restPointIt) }
+                    * (distance <= radius
+                       ? (weight = kernel(distance, radius), weights += weight, weight)
+                       : 0.f);
                 }
             );
 
             if (weights != 0.f)
-                *(result_begin + (sourceIt - source_begin)) += glm::vec4 { offset / weights, 0.f };
+                *(resultPointsBegin + (toDeformPointIt - toDeformPointsBegin))
+                += glm::vec4 {offset / weights, 0.f };
         }
 
-        return Model
-        {
-            result_points,
-            source.texcoords(),
+        return Model {
+            resultPoints,
+            toDeform.texcoords(),
             {},
-            source.pointIndices(),
-            source.texcoordIndices(),
+            toDeform.pointIndices(),
+            toDeform.texcoordIndices(),
             {},
-            source.nPointsByFace()
+            toDeform.faceSizes()
         };
     }
 }
+
+#endif

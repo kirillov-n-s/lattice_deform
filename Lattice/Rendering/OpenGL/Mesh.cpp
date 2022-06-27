@@ -1,42 +1,42 @@
 #include "Mesh.h"
 #include "../Conversion.h"
 #include "../../Model.h"
+#include <GL/glew.h>
+#include <vector>
+#include <unordered_map>
 
-namespace Lattice::Rendering::OpenGL
-{
+namespace Lattice::Rendering::OpenGL{
     Mesh::Mesh(const Model &model)
     {
-        const auto& triModel = Conversion::isTriangle(model)
-                               ? model
-                               : Conversion::triangulate(model);
+        const auto& triangleModel = Conversion::isTriangle(model)
+                                    ? model
+                                    : Conversion::triangulate(model);
 
         std::vector<Conversion::Vertex> vertices;
-        std::vector<unsigned int> indices;
+        std::vector<unsigned int> flatIndices;
         std::unordered_map<Conversion::Index, unsigned int> indexMap;
 
-        auto nIndices = triModel.pointIndices().size();
-        for (size_t i = 0; i < nIndices; i++)
-        {
-            const auto& index = Conversion::makeIndex(triModel, i);
-            auto iter = indexMap.find(index);
-            if (iter != indexMap.end())
-                indices.push_back(iter->second);
-            else
-            {
-                auto mappedIndex = indexMap.size();
-                indexMap[index] = mappedIndex;
-                indices.push_back(mappedIndex);
-                vertices.push_back(vertexAtIndex(triModel, index));
+        const auto nPointIndices = triangleModel.pointIndices().size();
+        for (size_t pointIdx = 0; pointIdx < nPointIndices; pointIdx++) {
+            const auto& convIdx = Conversion::makeIndex(triangleModel, pointIdx);
+            const auto& indexPairIt = indexMap.find(convIdx);
+            if (indexPairIt != indexMap.end()) {
+                flatIndices.push_back(indexPairIt->second);
+                continue;
             }
+            const size_t flatIdx = indexMap.size();
+            indexMap[convIdx] = flatIdx;
+            flatIndices.push_back(flatIdx);
+            vertices.push_back(vertexAtIndex(triangleModel, convIdx));
         }
 
-        _element_count = indices.size();
+        m_nElems = flatIndices.size();
 
-        glGenVertexArrays(1, &_vao);
-        glBindVertexArray(_vao);
+        glGenVertexArrays(1, &m_vao);
+        glBindVertexArray(m_vao);
 
-        glGenBuffers(1, &_vbo);
-        glBindBuffer(GL_ARRAY_BUFFER, _vbo);
+        glGenBuffers(1, &m_vbo);
+        glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
         glBufferData(
             GL_ARRAY_BUFFER,
             vertices.size() * sizeof(Conversion::Vertex),
@@ -68,24 +68,32 @@ namespace Lattice::Rendering::OpenGL
             (void*)offsetof(Conversion::Vertex, normal));
         glEnableVertexAttribArray(2);
 
-        glGenBuffers(1, &_ebo);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _ebo);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, _element_count * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
+        glGenBuffers(1, &m_ebo);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo);
+        glBufferData(
+            GL_ELEMENT_ARRAY_BUFFER,
+            m_nElems * sizeof(unsigned int),
+            flatIndices.data(),
+            GL_STATIC_DRAW);
 
         glBindVertexArray(0);
     }
 
     Mesh::~Mesh()
     {
-        glDeleteVertexArrays(1, &_vao);
-        glDeleteBuffers(1, &_vbo);
-        glDeleteBuffers(1, &_ebo);
+        glDeleteVertexArrays(1, &m_vao);
+        glDeleteBuffers(1, &m_vbo);
+        glDeleteBuffers(1, &m_ebo);
     }
 
     void Mesh::draw() const
     {
-        glBindVertexArray(_vao);
-        glDrawElements(GL_TRIANGLES, _element_count, GL_UNSIGNED_INT, nullptr);
+        glBindVertexArray(m_vao);
+        glDrawElements(
+            GL_TRIANGLES,
+            m_nElems,
+            GL_UNSIGNED_INT,
+            nullptr);
         glBindVertexArray(0);
     }
 }

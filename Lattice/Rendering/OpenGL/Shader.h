@@ -1,42 +1,48 @@
-#pragma once
-#include <iostream>
-#include <fstream>
-#include <sstream>
+#ifndef LATTICE_RENDERING_OPENGL_SHADER_H
+#define LATTICE_RENDERING_OPENGL_SHADER_H
+
 #include <string>
-#include <vector>
-#include <GL/glew.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <GL/glew.h>
 
-namespace Lattice::Rendering::OpenGL
-{
-    template <typename>
-    constexpr bool is_always_false = false;
-
+namespace Lattice::Rendering::OpenGL {
     class Shader
     {
-    private:
-        unsigned int _id;
-
-        int get_uniform_location(const std::string& name) const;
-
     public:
-        Shader(const std::string& vert_path, const std::string& frag_path);
+        Shader(
+            const std::string &vertPath,
+            const std::string &fragPath);
         ~Shader();
 
         void use() const;
 
         template <typename U>
-        void set_uniform(const std::string& name, U value) const;
+        void setUniform(
+            const std::string& name,
+            const U &value) const;
+
+    private:
+        unsigned int m_id;
+
+        int uniformLocation(const std::string& name) const;
+
+        static void compileShader(
+            const unsigned int id,
+            const char **code);
     };
 }
 
-namespace Lattice::Rendering::OpenGL
-{
+namespace Lattice::Rendering::OpenGL {
+    template <typename>
+    constexpr bool is_always_false = false;
+
     template<typename U>
-    void Shader::set_uniform(const std::string &name, U value) const
+    void Shader::setUniform(
+        const std::string &name,
+        const U &value) const
     {
-        auto location = get_uniform_location(name);
+        const int location = uniformLocation(name);
         if constexpr(std::is_same_v<U, float>)
             glUniform1f(location, value);
         else if constexpr(std::is_same_v<U, glm::vec3>)
@@ -51,3 +57,5 @@ namespace Lattice::Rendering::OpenGL
             static_assert(is_always_false<U>, "Uniform of that type is not supported.");
     }
 }
+
+#endif

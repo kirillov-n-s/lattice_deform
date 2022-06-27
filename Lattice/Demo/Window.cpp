@@ -1,131 +1,175 @@
 #include "Window.h"
+#include <string>
 #include "../Rendering/OpenGL/Mesh.h"
 #include "../Rendering/OpenGL/Shader.h"
 #include <GLFW/glfw3.h>
 
-namespace Lattice::Demo
-{
-    void Window::resize_callback(GLFWwindow *window, int new_width, int new_height)
+namespace Lattice::Demo {
+    void Window::resizeCallback(
+        GLFWwindow*,
+        int newWidth,
+        int newHeight)
     {
-        _width = new_width;
-        _height = new_height;
-        glViewport(0, 0, _width, _height);
+        glViewport(
+            0,
+            0,
+            s_width = newWidth,
+            s_height = newHeight);
     }
 
-    void Window::cursor_callback(GLFWwindow *window, double x_pos, double y_pos)
+    void Window::cursorCallback(
+        GLFWwindow*,
+        double xPos,
+        double yPos)
     {
-        float x_offset = x_pos - _x_prev;
-        float y_offset = _y_prev - y_pos;
-        _x_prev = x_pos;
-        _y_prev = y_pos;
-        _camera.rotate(x_offset * _sensitivity, y_offset * _sensitivity);
+        float x_offset = xPos - s_xPrevPos;
+        float y_offset = s_yPrevPos - yPos;
+        s_xPrevPos = xPos;
+        s_yPrevPos = yPos;
+        s_camera.rotate(
+            x_offset * s_sensitivity,
+            y_offset * s_sensitivity);
     }
 
-    void Window::scroll_callback(GLFWwindow *window, double x_offset, double y_offset)
+    void Window::scrollCallback(
+        GLFWwindow*,
+        double,
+        double yOffset)
     {
-        if ((_speed += y_offset) < 0.f)
-            _speed = 0.f;
+        if ((s_speed += yOffset) < 0.f)
+            s_speed = 0.f;
     }
 
-    void Window::key_callback(GLFWwindow *window, int key, int scancode, int action, int mods)
+    void Window::keyCallback(
+        GLFWwindow*,
+        int key,
+        int,
+        int action,
+        int)
     {
         if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-            glfwSetWindowShouldClose(_window, GLFW_TRUE);
-
+            glfwSetWindowShouldClose(s_window, GLFW_TRUE);
         if (key == GLFW_KEY_SPACE && action == GLFW_PRESS)
-            glfwMaximizeWindow(_window);
-
+            glfwMaximizeWindow(s_window);
         if (key == GLFW_KEY_ENTER && action == GLFW_PRESS)
-            _camera = {};
+            s_camera = {};
     }
 
-    void Window::handle_movement(float frame_time)
+    void Window::handleMovement(const float frameTime)
     {
         glm::vec3 direction = Lattice::Directions::ZERO;
-        if (glfwGetKey(_window, GLFW_KEY_W) == GLFW_PRESS)
-            direction += _camera.front();
-        if (glfwGetKey(_window, GLFW_KEY_S) == GLFW_PRESS)
-            direction -= _camera.front();
-        if (glfwGetKey(_window, GLFW_KEY_D) == GLFW_PRESS)
-            direction += _camera.right();
-        if (glfwGetKey(_window, GLFW_KEY_A) == GLFW_PRESS)
-            direction -= _camera.right();
-        if (glfwGetKey(_window, GLFW_KEY_Q) == GLFW_PRESS)
+        if (glfwGetKey(s_window, GLFW_KEY_W) == GLFW_PRESS)
+            direction += s_camera.front();
+        if (glfwGetKey(s_window, GLFW_KEY_S) == GLFW_PRESS)
+            direction -= s_camera.front();
+        if (glfwGetKey(s_window, GLFW_KEY_D) == GLFW_PRESS)
+            direction += s_camera.right();
+        if (glfwGetKey(s_window, GLFW_KEY_A) == GLFW_PRESS)
+            direction -= s_camera.right();
+        if (glfwGetKey(s_window, GLFW_KEY_Q) == GLFW_PRESS)
             direction += Lattice::Directions::UP;
-        if (glfwGetKey(_window, GLFW_KEY_E) == GLFW_PRESS)
+        if (glfwGetKey(s_window, GLFW_KEY_E) == GLFW_PRESS)
             direction -= Lattice::Directions::UP;
-        _camera.move(direction * frame_time * _speed);
+        s_camera.move(direction * frameTime * s_speed);
     }
 
     void Window::render()
     {
-        _shader->use();
-        _shader->set_uniform("uView", _camera.view());
-        _shader->set_uniform("uCameraDir", _camera.front());
+        s_shader->use();
+        s_shader->setUniform("uView", s_camera.view());
+        s_shader->setUniform("uCameraDir", s_camera.front());
 
         glPolygonOffset(1,1);
         glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
         glEnable(GL_POLYGON_OFFSET_FILL);
-        _shader->set_uniform("uColor", glm::vec4 { 0.75f, 0.75f, 0.75f, 1.f });
-        _mesh->draw();
+        s_shader->setUniform(
+                "uColor",
+                glm::vec4{0.75f, 0.75f, 0.75f, 1.f});
+        s_mesh->draw();
 
         glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
         glDisable(GL_POLYGON_OFFSET_FILL);
-        _shader->set_uniform("uColor", glm::vec4 { 0.5f, 0.5f, 0.5f, 1.f });
-        _mesh->draw();
+        s_shader->setUniform(
+                "uColor",
+                glm::vec4{0.5f, 0.5f, 0.5f, 1.f});
+        s_mesh->draw();
     }
 
     void Window::create(int width, int height)
     {
-        _width = width;
-        _height = height;
-        _aspect = (float)_width / _height;
+        s_width = width;
+        s_height = height;
+        s_aspect = (float)s_width / s_height;
 
         glfwInit();
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
-        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+        glfwWindowHint(
+            GLFW_CONTEXT_VERSION_MAJOR,
+            4);
+        glfwWindowHint(
+            GLFW_CONTEXT_VERSION_MINOR,
+            6);
+        glfwWindowHint(
+            GLFW_OPENGL_PROFILE,
+            GLFW_OPENGL_CORE_PROFILE);
 
-        _window = glfwCreateWindow(_width, _height, "", nullptr, nullptr);
-        if (_window == nullptr)
-        {
+        s_window = glfwCreateWindow(
+            s_width,
+            s_height,
+            "",
+            nullptr,
+            nullptr);
+        if (s_window == nullptr) {
             glfwTerminate();
-            throw std::runtime_error("Cannot open Window.");
+            throw std::runtime_error("Cannot open window.");
         }
 
-        glfwMakeContextCurrent(_window);
+        glfwMakeContextCurrent(s_window);
 
-        glfwSetInputMode(_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        glfwSetInputMode(
+            s_window,
+            GLFW_CURSOR,
+            GLFW_CURSOR_DISABLED);
 
-        glfwSetFramebufferSizeCallback(_window, resize_callback);
-        glfwSetCursorPosCallback(_window, cursor_callback);
-        glfwSetScrollCallback(_window, scroll_callback);
-        glfwSetKeyCallback(_window, key_callback);
+        glfwSetFramebufferSizeCallback(s_window, resizeCallback);
+        glfwSetCursorPosCallback(s_window, cursorCallback);
+        glfwSetScrollCallback(s_window, scrollCallback);
+        glfwSetKeyCallback(s_window, keyCallback);
 
-        glViewport(0, 0, _width, _height);
+        glViewport(
+            0,
+            0,
+            s_width,
+            s_height);
 
         glewInit();
     }
 
     void Window::load(
-            Lattice::Rendering::OpenGL::Mesh *mesh,
-            Lattice::Rendering::OpenGL::Shader *shader,
-            const Lattice::Rendering::Camera &camera)
+        Lattice::Rendering::OpenGL::Mesh *mesh,
+        Lattice::Rendering::OpenGL::Shader *shader,
+        const Lattice::Rendering::Camera &camera)
     {
-        _mesh = mesh;
-        _shader = shader;
-        _camera = camera;
+        s_mesh = mesh;
+        s_shader = shader;
+        s_camera = camera;
     }
 
     void Window::run()
     {
-        float current_frame, prev_frame = 0.f, frame_time;
+        float currentFrameElapsed,
+              prevFrameElapsed = 0.f,
+              frameTime;
 
-        _shader->use();
-        _shader->set_uniform("uProjection",
-                             glm::perspective(glm::radians(_fov), _aspect, _near, _far));
-        _shader->set_uniform("uModel", _model);
-        _shader->set_uniform("uNormalModel", _normal_model);
+        s_shader->use();
+        s_shader->setUniform(
+                "uProjection",
+                glm::perspective(
+                        glm::radians(s_fov),
+                        s_aspect,
+                        s_near,
+                        s_far));
+        s_shader->setUniform("uModel", s_model);
+        s_shader->setUniform("uNormalModel", s_normalModel);
 
         glEnable(GL_CULL_FACE);
         glCullFace(GL_BACK);
@@ -133,29 +177,31 @@ namespace Lattice::Demo
 
         glEnable(GL_DEPTH_TEST);
 
-        while(!glfwWindowShouldClose(_window))
+        while(!glfwWindowShouldClose(s_window))
         {
-            current_frame = glfwGetTime();
-            frame_time = current_frame - prev_frame;
-            prev_frame = current_frame;
+            currentFrameElapsed = glfwGetTime();
+            frameTime = currentFrameElapsed - prevFrameElapsed;
+            prevFrameElapsed = currentFrameElapsed;
 
-            glfwSetWindowTitle(_window, (std::to_string((int)(1.f / frame_time)) + " fps").c_str());
+            glfwSetWindowTitle(
+                s_window,
+                (std::to_string((int)(1.f / frameTime)) + " fps").c_str());
 
             glClearColor(0.15f, 0.2f, 0.3f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-            handle_movement(frame_time);
+            handleMovement(frameTime);
             render();
 
-            glfwSwapBuffers(_window);
+            glfwSwapBuffers(s_window);
             glfwPollEvents();
         }
     }
 
     void Window::destroy()
     {
-        delete _mesh;
-        delete _shader;
+        delete s_mesh;
+        delete s_shader;
         glfwTerminate();
     }
 }

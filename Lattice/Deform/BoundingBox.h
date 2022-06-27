@@ -1,20 +1,22 @@
-#pragma once
+#ifndef LATTICE_DEFORM_BOUNDINGBOX_H
+#define LATTICE_DEFORM_BOUNDINGBOX_H
+
 #include <glm/vec3.hpp>
 #include <glm/common.hpp>
 
-namespace Lattice
-{
+namespace Lattice {
     struct BoundingBox
     {
         glm::vec3 min, max;
 
         glm::vec3 diag() const;
 
-        bool contains(const glm::vec3&) const;
-        bool contains(const BoundingBox&) const;
-        bool overlaps(const BoundingBox&) const;
+        bool contains(const glm::vec3 &point) const;
+        bool overlaps(const BoundingBox &boundingBox) const;
     };
 
     class Model;
-    BoundingBox makeBoundingBox(const Model&);
+    BoundingBox makeBoundingBox(const Model &model);
 }
+
+#endif

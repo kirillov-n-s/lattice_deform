@@ -1,9 +1,9 @@
-#pragma once
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
+#ifndef LATTICE_RENDERING_CAMERA_H
+#define LATTICE_RENDERING_CAMERA_H
 
-namespace Lattice::Directions
-{
+#include <glm/glm.hpp>
+
+namespace Lattice::Directions{
     const glm::vec3 ZERO = {0.f, 0.f, 0.f };
     const glm::vec3 RIGHT = {1.f, 0.f, 0.f };
     const glm::vec3 LEFT = {-1.f, 0.f, 0.f };
@@ -13,23 +13,14 @@ namespace Lattice::Directions
     const glm::vec3 FRONT = {0.f, 0.f, -1.f };
 }
 
-namespace Lattice::Rendering
-{
+namespace Lattice::Rendering{
     class Camera
     {
-    private:
-        glm::vec3 _position;
-        float _yaw;
-        float _pitch;
-
-        glm::vec3 _front;
-        glm::vec3 _right;
-        glm::vec3 _up;
-
-        void update_derived_vectors();
-
     public:
-        Camera(const glm::vec3& position = Directions::BACK * 3.f, float yaw = -90.f, float pitch = 0.f);
+        Camera(
+            const glm::vec3 &position = Directions::BACK * 3.f,
+            const float yaw = -90.f,
+            const float pitch = 0.f);
 
         glm::vec3 front() const;
         glm::vec3 right() const;
@@ -38,6 +29,21 @@ namespace Lattice::Rendering
         glm::mat4 view() const;
 
         void move(const glm::vec3& offset);
-        void rotate(float yaw_offset, float pitch_offset);
+        void rotate(
+            const float yawOffset,
+            const float pitchOffset);
+
+    private:
+        glm::vec3 m_position;
+        float m_yaw;
+        float m_pitch;
+
+        glm::vec3 m_front;
+        glm::vec3 m_right;
+        glm::vec3 m_up;
+
+        void updateDerivedVectors();
     };
 }
+
+#endif

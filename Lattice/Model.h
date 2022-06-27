@@ -1,43 +1,53 @@
-#pragma once
+#ifndef LATTICE_MODEL_H
+#define LATTICE_MODEL_H
+
 #include <vector>
-#include <algorithm>
 #include <glm/vec4.hpp>
 #include <glm/vec3.hpp>
 
-namespace Lattice
-{
+namespace Lattice{
     class Model
     {
     public:
-        using PointIterator = std::vector<glm::vec4>::const_iterator;
+        using Points = std::vector<glm::vec4>;
+        using Texcoords = std::vector<glm::vec3>;
+        using Normals = std::vector<glm::vec3>;
+        using Indices = std::vector<int64_t>;
+        using FaceSizes = std::vector<size_t>;
 
-    private:
-        std::vector<glm::vec4> _points;
-        std::vector<glm::vec3> _texcoords;
-        std::vector<glm::vec3> _normals;
+        Model(
+            const Points &points,
+            const Texcoords &texcoords,
+            const Normals &normals,
+            const Indices &pointIndices,
+            const Indices &texcoordIndices,
+            const Indices &normalIndices,
+            const FaceSizes &faceSizes);
 
-        std::vector<int64_t> _point_indices;
-        std::vector<int64_t> _texcoord_indices;
-        std::vector<int64_t> _normal_indices;
+        const Points &points() const;
+        const Texcoords &texcoords() const;
+        const Normals &normals() const;
 
-        std::vector<int64_t> _face_sizes;
+        const Indices &pointIndices() const;
+        const Indices &texcoordIndices() const;
+        const Indices &normalIndices() const;
 
-    public:
-        Model(const std::vector<glm::vec4>&, const std::vector<glm::vec3>&, const std::vector<glm::vec3>&,
-              const std::vector<int64_t>&, const std::vector<int64_t>&, const std::vector<int64_t>&,
-              const std::vector<int64_t>&);
-
-        const std::vector<glm::vec4>& points() const;
-        const std::vector<glm::vec3>& texcoords() const;
-        const std::vector<glm::vec3>& normals() const;
-
-        const std::vector<int64_t>& pointIndices() const;
-        const std::vector<int64_t>& texcoordIndices() const;
-        const std::vector<int64_t>& normalIndices() const;
-
-        const std::vector<int64_t>& nPointsByFace() const;
+        const FaceSizes &faceSizes() const;
 
         bool hasTexcoords() const;
         bool hasNormals() const;
+
+    private:
+        Points m_points;
+        Texcoords m_texcoords;
+        Normals m_normals;
+
+        Indices m_pointIndices;
+        Indices m_texcoordIndices;
+        Indices m_normalIndices;
+
+        FaceSizes _face_sizes;
     };
 }
+
+#endif

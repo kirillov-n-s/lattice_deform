@@ -3,10 +3,9 @@
 #include "KDTree3D.h"
 #include "../BoundingBox.h"
 
-namespace Lattice::Deform::SpatialViews
-{
-    KDTree3D::Branch::Branch(float split)
-            : split(split)
+namespace Lattice::Deform::SpatialViews {
+    KDTree3D::Branch::Branch(float splitValue)
+        : splitValue(splitValue)
     {}
 
     KDTree3D::Branch::~Branch()
@@ -15,65 +14,93 @@ namespace Lattice::Deform::SpatialViews
         delete right;
     }
 
-    KDTree3D::Leaf::Leaf(const ItemIterator &first, const ItemIterator &last)
-            : first(first), last(last)
+    KDTree3D::Leaf::Leaf(
+        const PointItersIterator &first,
+        const PointItersIterator &last)
+        : first(first), last(last)
     {}
 
-    KDTree3D::Node* KDTree3D::make_subtree(ItemIterator first, ItemIterator last, int dim)
+    KDTree3D::Node* KDTree3D::makeSubtree(
+        const PointItersIterator &first,
+        const PointItersIterator &last,
+        const uint8_t dim)
     {
-        auto dist = last - first;
-        if (dist <= _leaf_size)
-            return new Leaf {first, last };
+        const auto& dist = last - first;
+        if (dist <= m_leafSize)
+            return new Leaf { first, last };
 
-        auto median = first + dist / 2;
-        std::nth_element(first, median, last,
-                         [&dim](const auto& lhs, const auto& rhs)
-                         {
-                             return (*lhs)[dim] < (*rhs)[dim];
-                         });
-        auto split = (**median)[dim];
-        auto branch = new Branch {split };
-        dim = (dim + 1) % 3;
-        branch->left = make_subtree(first, median, dim);
-        branch->right = make_subtree(median, last, dim);
+        const auto& median = first + dist / 2;
+        std::nth_element(
+            first,
+            median,
+            last,
+            [&dim](const auto& lhs, const auto& rhs)
+            {
+                return (*lhs)[dim] < (*rhs)[dim];
+            });
+        auto* branch = new Branch { (**median)[dim] };
+        const uint8_t newDim = (dim + 1) % 3;
+        branch->left = makeSubtree(first, median, newDim);
+        branch->right = makeSubtree(median, last, newDim);
 
         return branch;
     }
 
-    void KDTree3D::query_subtree(const Node *node, const BoundingBox &bbox,
-                                 std::vector<const Leaf*> &result, int dim) const
+    void KDTree3D::querySubtree(
+        const Node *node,
+        const BoundingBox &boundingBox,
+        const uint8_t dim,
+        std::vector<const Leaf*> &result) const
     {
         if (typeid(*node) == typeid(Leaf))
             return result.push_back(static_cast<const Leaf*>(node));
 
-        auto branch = static_cast<const Branch*>(node);
-        auto new_dim = (dim + 1) % 3;
-        if (bbox.min[dim] < branch->split)
-            query_subtree(branch->left, bbox, result, new_dim);
-        if (bbox.max[dim] > branch->split)
-            query_subtree(branch->right, bbox, result, new_dim);
+        const auto* branch = static_cast<const Branch*>(node);
+        const uint8_t newDim = (dim + 1) % 3;
+        if (boundingBox.min[dim] < branch->splitValue)
+            querySubtree(
+                branch->left,
+                boundingBox,
+                newDim,
+                result);
+        if (boundingBox.max[dim] > branch->splitValue)
+            querySubtree(
+                branch->right,
+                boundingBox,
+                newDim,
+                result);
     }
 
-    KDTree3D::KDTree3D(const PointIterator &first, const PointIterator &last,
-                       const BoundingBox &bbox, size_t leaf_size)
-            : _leaf_size(leaf_size)
+    std::vector<const KDTree3D::Leaf*> KDTree3D::query(const BoundingBox &boundingBox) const
     {
-        for (auto it = first; it != last; it++)
-            if (bbox.contains(*it))
-                _items.push_back(it);
-        _root = make_subtree(_items.begin(), _items.end(), 0);
+        std::vector<const KDTree3D::Leaf*> result;
+        querySubtree(
+            m_root,
+            boundingBox,
+            0,
+            result);
+        return result;
+    }
+
+    KDTree3D::KDTree3D(
+        const PointIterator &first,
+        const PointIterator &last,
+        const BoundingBox &boundingBox,
+        const size_t leafSize)
+        : m_leafSize(leafSize)
+    {
+        for (auto pointIt = first; pointIt != last; pointIt++)
+            if (boundingBox.contains(*pointIt))
+                m_items.push_back(pointIt);
+        m_root = makeSubtree(
+            m_items.begin(),
+            m_items.end(),
+            0);
     }
 
     KDTree3D::~KDTree3D()
     {
-        delete _root;
-    }
-
-    std::vector<const KDTree3D::Leaf*> KDTree3D::query(const BoundingBox &bbox) const
-    {
-        std::vector<const KDTree3D::Leaf*> result;
-        query_subtree(_root, bbox, result, 0);
-        return result;
+        delete m_root;
     }
 }
 

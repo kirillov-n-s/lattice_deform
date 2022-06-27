@@ -1,63 +1,77 @@
-#pragma once
+#ifndef LATTICE_DEMO_WINDOW_H
+#define LATTICE_DEMO_WINDOW_H
+
 #include <iostream>
-#include <string>
 #include "../Rendering/Camera.h"
 
 class GLFWwindow;
 
-namespace Lattice::Rendering
-{
+namespace Lattice::Rendering {
     class Camera;
 
-    namespace OpenGL
-    {
+    namespace OpenGL {
         class Mesh;
         class Shader;
     }
 }
 
-namespace Lattice::Demo
-{
+namespace Lattice::Demo {
     class Window
     {
-    private:
-        static inline GLFWwindow* _window;
-        static inline int _width;
-        static inline int _height;
-        static inline float _aspect;
-
-        static inline Lattice::Rendering::OpenGL::Mesh* _mesh;
-        static inline Lattice::Rendering::OpenGL::Shader* _shader;
-        static inline Lattice::Rendering::Camera _camera;
-
-        static inline float _x_prev;
-        static inline float _y_prev;
-
-        static inline float _sensitivity = 0.1f;
-        static inline float _speed = 2.5f;
-
-        static inline float _fov = 45.f;
-        static inline float _near = 0.1f;
-        static inline float _far = 1000.f;
-
-        static inline glm::mat4 _model = glm::mat4 { 1.f };
-        static inline glm::mat4 _normal_model = glm::transpose(glm::inverse(_model));
-
-        static void resize_callback(GLFWwindow*, int, int);
-        static void cursor_callback(GLFWwindow*, double, double);
-        static void scroll_callback(GLFWwindow*, double, double);
-        static void key_callback(GLFWwindow*, int, int, int, int);
-
-        static void handle_movement(float);
-        static void render();
-
     public:
-        static void create(int, int);
+        static void create(int width, int height);
         static void load(
-                Lattice::Rendering::OpenGL::Mesh*,
-                Lattice::Rendering::OpenGL::Shader*,
-                const Lattice::Rendering::Camera&);
+            Lattice::Rendering::OpenGL::Mesh *mesh,
+            Lattice::Rendering::OpenGL::Shader *shader,
+            const Lattice::Rendering::Camera &camera);
         static void run();
         static void destroy();
+
+    private:
+        static inline GLFWwindow* s_window;
+        static inline int s_width;
+        static inline int s_height;
+        static inline float s_aspect;
+
+        static inline Lattice::Rendering::OpenGL::Mesh* s_mesh;
+        static inline Lattice::Rendering::OpenGL::Shader* s_shader;
+        static inline Lattice::Rendering::Camera s_camera;
+
+        static inline float s_xPrevPos;
+        static inline float s_yPrevPos;
+
+        static inline const float s_sensitivity = 0.1f;
+        static inline float s_speed = 2.5f;
+
+        static inline const float s_fov = 45.f;
+        static inline const float s_near = 0.1f;
+        static inline const float s_far = 1000.f;
+
+        static inline const glm::mat4 s_model = glm::mat4 {1.f };
+        static inline const glm::mat4 s_normalModel = glm::transpose(glm::inverse(s_model));
+
+        static void resizeCallback(
+            GLFWwindow*,
+            int newWidth,
+            int newHeight);
+        static void cursorCallback(
+            GLFWwindow*,
+            double xPos,
+            double yPos);
+        static void scrollCallback(
+            GLFWwindow*,
+            double,
+            double yOffset);
+        static void keyCallback(
+            GLFWwindow*,
+            int key,
+            int,
+            int action,
+            int);
+
+        static void handleMovement(const float frameTime);
+        static void render();
     };
 }
+
+#endif

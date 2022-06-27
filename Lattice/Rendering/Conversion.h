@@ -1,15 +1,15 @@
-#pragma once
+#ifndef LATTICE_RENDERING_CONVERSION_H
+#define LATTICE_RENDERING_CONVERSION_H
+
 #include <functional>
 #include <glm/vec4.hpp>
 #include <glm/vec3.hpp>
 
-namespace Lattice
-{
+namespace Lattice{
     class Model;
 }
 
-namespace Lattice::Rendering::Conversion
-{
+namespace Lattice::Rendering::Conversion{
     struct Vertex
     {
         glm::vec4 point;
@@ -24,14 +24,22 @@ namespace Lattice::Rendering::Conversion
         int64_t normal;
     };
 
-    Index makeIndex(const Model&, size_t);
-    Vertex vertexAtIndex(const Model&, const Index&);
+    Index makeIndex(
+        const Model &model,
+        const size_t flatIndex);
+    Vertex vertexAtIndex(
+        const Model &model,
+        const Index &index);
 
-    bool operator==(const Index&, const Index&);
-    bool operator!=(const Index&, const Index&);
+    bool operator==(
+        const Index &lhs,
+        const Index &rhs);
+    bool operator!=(
+        const Index &lhs,
+        const Index &rhs);
 
-    bool isTriangle(const Model&);
-    Model triangulate(const Model&);
+    bool isTriangle(const Model &model);
+    Model triangulate(const Model &model);
 }
 
 template<>
@@ -39,9 +47,10 @@ struct std::hash<Lattice::Rendering::Conversion::Index>
 {
     size_t operator()(const Lattice::Rendering::Conversion::Index &index) const
     {
-        auto hp = std::hash<int64_t>{}(index.point);
-        auto ht = std::hash<int64_t>{}(index.texcoord);
-        auto hn = std::hash<int64_t>{}(index.normal);
-        return hp ^ ht ^ hn;
+        return std::hash<int64_t>{}(index.point)
+             ^ std::hash<int64_t>{}(index.texcoord)
+             ^ std::hash<int64_t>{}(index.normal);
     }
 };
+
+#endif

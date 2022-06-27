@@ -1,96 +1,117 @@
 #include "Shader.h"
+#include <fstream>
+#include <sstream>
+#include <vector>
 
 namespace Lattice::Rendering::OpenGL
 {
-    int Shader::get_uniform_location(const std::string &name) const
+    int Shader::uniformLocation(const std::string &name) const
     {
-        return glGetUniformLocation(_id, name.c_str());
+        return glGetUniformLocation(m_id, name.c_str());
     }
 
-    Shader::Shader(const std::string &vert_path, const std::string &frag_path)
+    void Shader::compileShader(
+        const unsigned int id,
+        const char **code)
     {
-        std::ifstream vert_file, frag_file;
-
-        vert_file.open(vert_path);
-        if (!vert_file.is_open())
-            throw std::runtime_error(std::string("Cannot open file ") + vert_path);
-
-        frag_file.open(frag_path);
-        if (!frag_file.is_open())
-            throw std::runtime_error(std::string("Cannot open file ") + frag_path);
-
-        std::ostringstream vert_stream, frag_stream;
-        vert_stream << vert_file.rdbuf();
-        frag_stream << frag_file.rdbuf();
-
-        vert_file.close();
-        frag_file.close();
-
-        std::string vert_string = vert_stream.str();
-        std::string frag_string = frag_stream.str();
-
-        const char* vert_code = vert_string.c_str();
-        const char* frag_code = frag_string.c_str();
-
-        unsigned int vert, frag;
-        int success, length;
+        int isSuccess,
+            logLength;
         std::vector<char> log;
-
-        vert = glCreateShader(GL_VERTEX_SHADER);
-        glShaderSource(vert, 1, &vert_code, nullptr);
-        glCompileShader(vert);
-        glGetShaderiv(vert, GL_COMPILE_STATUS, &success);
-        if(!success)
-        {
-            glGetShaderiv(vert, GL_INFO_LOG_LENGTH, &length);
-            log.resize(length);
-            glGetShaderInfoLog(vert, length, nullptr, log.data());
-            glDeleteShader(vert);
+        glShaderSource(
+                id,
+                1,
+                code,
+                nullptr);
+        glCompileShader(id);
+        glGetShaderiv(
+                id,
+                GL_COMPILE_STATUS,
+                &isSuccess);
+        if(!isSuccess) {
+            glGetShaderiv(
+                    id,
+                    GL_INFO_LOG_LENGTH,
+                    &logLength);
+            log.resize(logLength);
+            glGetShaderInfoLog(
+                    id,
+                    logLength,
+                    nullptr,
+                    log.data());
+            glDeleteShader(id);
             throw std::runtime_error(std::string("Vertex Shader compile error. Log:\n") + log.data() + '\n');
         }
+    }
 
-        frag = glCreateShader(GL_FRAGMENT_SHADER);
-        glShaderSource(frag, 1, &frag_code, nullptr);
-        glCompileShader(frag);
-        glGetShaderiv(frag, GL_COMPILE_STATUS, &success);
-        if(!success)
-        {
-            glGetShaderiv(frag, GL_INFO_LOG_LENGTH, &length);
-            log.resize(length);
-            glGetShaderInfoLog(frag, length, nullptr, log.data());
-            glDeleteShader(frag);
-            throw std::runtime_error(std::string("Fragment Shader compile error. Log:\n") + log.data() + '\n');
-        }
+    Shader::Shader(
+        const std::string &vertPath,
+        const std::string &fragPath)
+    {
+        std::ifstream vertFile,
+                      fragFile;
 
-        _id = glCreateProgram();
-        glAttachShader(_id, vert);
-        glAttachShader(_id, frag);
-        glLinkProgram(_id);
-        glGetProgramiv(_id, GL_LINK_STATUS, &success);
-        if(!success)
-        {
-            glGetProgramiv(_id, GL_INFO_LOG_LENGTH, &length);
-            log.resize(length);
-            glGetProgramInfoLog(_id, length, nullptr, log.data());
-            glDeleteProgram(_id);
-            glDeleteShader(vert);
-            glDeleteShader(frag);
+        vertFile.open(vertPath);
+        if (!vertFile.is_open())
+            throw std::runtime_error(std::string("Cannot open file ") + vertPath);
+
+        fragFile.open(fragPath);
+        if (!fragFile.is_open())
+            throw std::runtime_error(std::string("Cannot open file ") + fragPath);
+
+        std::ostringstream vertStream,
+                           fragStream;
+        vertStream << vertFile.rdbuf();
+        fragStream << fragFile.rdbuf();
+
+        vertFile.close();
+        fragFile.close();
+
+        const std::string vertString = vertStream.str(),
+                          fragString = fragStream.str();
+
+        const char* vertCode = vertString.c_str(),
+                  * fragCode = fragString.c_str();
+
+        unsigned int vertId,
+                     fragId;
+
+        vertId = glCreateShader(GL_VERTEX_SHADER);
+        compileShader(vertId, &vertCode);
+        fragId = glCreateShader(GL_FRAGMENT_SHADER);
+        compileShader(fragId, &fragCode);
+
+        int isSuccess,
+            logLength;
+        std::vector<char> log;
+
+        m_id = glCreateProgram();
+        glAttachShader(m_id, vertId);
+        glAttachShader(m_id, fragId);
+        glLinkProgram(m_id);
+        glGetProgramiv(m_id, GL_LINK_STATUS, &isSuccess);
+        if(!isSuccess) {
+            glGetProgramiv(m_id, GL_INFO_LOG_LENGTH, &logLength);
+            log.resize(logLength);
+            glGetProgramInfoLog(m_id, logLength, nullptr, log.data());
+            glDeleteProgram(m_id);
+            glDeleteShader(vertId);
+            glDeleteShader(fragId);
             throw std::runtime_error(std::string("Program link error. Log:\n") + log.data());
         }
 
-        glDetachShader(_id, vert);
-        glDetachShader(_id, frag);
-        glDeleteShader(vert);
-        glDeleteShader(frag);
+        glDetachShader(m_id, vertId);
+        glDetachShader(m_id, fragId);
+        glDeleteShader(vertId);
+        glDeleteShader(fragId);
     }
 
     Shader::~Shader()
     {
-        glDeleteProgram(_id);
+        glDeleteProgram(m_id);
     }
 
     void Shader::use() const
     {
-        glUseProgram(_id);
+        glUseProgram(m_id);
     }
 }

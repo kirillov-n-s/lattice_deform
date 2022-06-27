@@ -1,17 +1,16 @@
 #include "WriteHelpers.h"
 
-namespace Lattice::ObjIO::WriteHelpers
-{
+namespace Lattice::ObjIO::WriteHelpers {
     void writeFaceFull(
         std::ofstream &file,
         const std::vector<int64_t> &pointIndices,
         const std::vector<int64_t> &texcoordIndices,
         const std::vector<int64_t> &normalIndices,
-        int64_t index)
+        const size_t idx)
     {
-        file << (pointIndices[index] + 1) << '/'
-             << (texcoordIndices[index] + 1) << '/'
-             << (normalIndices[index] + 1) << ' ';
+        file << (pointIndices[idx] + 1) << '/'
+             << (texcoordIndices[idx] + 1) << '/'
+             << (normalIndices[idx] + 1) << ' ';
     }
 
     void writeFaceNoNormals(
@@ -19,10 +18,10 @@ namespace Lattice::ObjIO::WriteHelpers
         const std::vector<int64_t> &pointIndices,
         const std::vector<int64_t> &texcoordIndices,
         const std::vector<int64_t> &,
-        int64_t index)
+        const size_t idx)
     {
-        file << (pointIndices[index] + 1) << '/'
-             << (texcoordIndices[index] + 1) << ' ';
+        file << (pointIndices[idx] + 1) << '/'
+             << (texcoordIndices[idx] + 1) << ' ';
     }
 
     void writeFaceNoTexcoords(
@@ -30,10 +29,10 @@ namespace Lattice::ObjIO::WriteHelpers
         const std::vector<int64_t> &pointIndices,
         const std::vector<int64_t> &,
         const std::vector<int64_t> &normalIndices,
-        int64_t index)
+        const size_t idx)
     {
-        file << (pointIndices[index] + 1) << "//"
-             << (normalIndices[index] + 1) << ' ';
+        file << (pointIndices[idx] + 1) << "//"
+             << (normalIndices[idx] + 1) << ' ';
     }
 
     void writeFaceOnlyPoints(
@@ -41,12 +40,14 @@ namespace Lattice::ObjIO::WriteHelpers
         const std::vector<int64_t> &pointIndices,
         const std::vector<int64_t> &,
         const std::vector<int64_t> &,
-        int64_t index)
+        const size_t idx)
     {
-        file << (pointIndices[index] + 1) << ' ';
+        file << (pointIndices[idx] + 1) << ' ';
     }
 
-    WriteFaceFunction chooseWriteFaceFunction(bool hasTexcoords, bool hasNormals)
+    WriteFaceFunction chooseWriteFaceFunction(
+        const bool hasTexcoords,
+        const bool hasNormals)
     {
         if (hasTexcoords && hasNormals)
             return writeFaceFull;

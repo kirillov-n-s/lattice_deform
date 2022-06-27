@@ -1,25 +1,36 @@
 #include "Conversion.h"
 #include "../Model.h"
+#include <algorithm>
 
 namespace Lattice::Rendering::Conversion
 {
-    Index makeIndex(const Model &model, size_t i)
+    Index makeIndex(
+        const Model &model,
+        const size_t flatIndex)
     {
-        return
-        {
-            model.pointIndices()[i],
-            model.hasTexcoords() ? model.texcoordIndices()[i] : -1,
-            model.hasNormals() ? model.normalIndices()[i] : -1
+        return {
+            model.pointIndices()[flatIndex],
+            model.hasTexcoords()
+                ? model.texcoordIndices()[flatIndex]
+                : -1,
+            model.hasNormals()
+                ? model.normalIndices()[flatIndex]
+                : -1
         };
     }
 
-    Vertex vertexAtIndex(const Model &model, const Index &index)
+    Vertex vertexAtIndex(
+        const Model &model,
+        const Index &index)
     {
-        return
-        {
+        return {
             model.points()[index.point],
-            index.texcoord != -1 ? model.texcoords()[index.texcoord] : glm::vec3 { 0.f },
-            index.normal != -1 ? model.normals()[index.normal] : glm::vec3 { 0.f }
+            index.texcoord != -1
+                ? model.texcoords()[index.texcoord]
+                : glm::vec3 { 0.f },
+            index.normal != -1
+                ? model.normals()[index.normal]
+                : glm::vec3 { 0.f }
         };
     }
 
@@ -37,68 +48,65 @@ namespace Lattice::Rendering::Conversion
 
     bool isTriangle(const Model &model)
     {
-        const auto& face_sizes = model.nPointsByFace();
-        return std::all_of(face_sizes.begin(), face_sizes.end(),
-                           [](auto x) { return x == 3; });
+        const auto& faceSizes = model.faceSizes();
+        return std::all_of(
+            faceSizes.begin(),
+            faceSizes.end(),
+            [](const size_t faceSize) { return faceSize == 3; });
     }
 
 
     Model triangulate(const Model &model)
     {
-        const auto& point_indices = model.pointIndices();
-        const auto& texcoord_indices = model.texcoordIndices();
-        const auto& normal_indices = model.normalIndices();
-        const auto& face_sizes = model.nPointsByFace();
+        const auto& pointIndices = model.pointIndices();
+        const auto& texcoordIndices = model.texcoordIndices();
+        const auto& normalIndices = model.normalIndices();
+        const auto& faceSizes = model.faceSizes();
 
-        std::vector<int64_t> new_point_indices;
-        std::vector<int64_t> new_texcoord_indices;
-        std::vector<int64_t> new_normal_indices;
-        std::vector<int64_t> new_face_sizes;
+        Model::Indices newPointIndices;
+        Model::Indices newTexcoordIndices;
+        Model::Indices newNormalIndices;
+        Model::FaceSizes newFaceSizes;
 
-        auto has_texcoords = model.hasTexcoords();
-        auto has_normals = model.hasNormals();
-        auto face_count = face_sizes.size();
-        for (int64_t i = 0, global_idx = 0; i < face_count; i++)
-        {
-            auto face_size = face_sizes[i];
-            int64_t new_face_size = 0;
+        const bool hasTexcoords = model.hasTexcoords();
+        const bool hasNormals = model.hasNormals();
+        const size_t nFaces = faceSizes.size();
+        for (size_t i = 0, globalIdx = 0; i < nFaces; i++) {
+            const size_t faceSize = faceSizes[i];
+            size_t newFaceSize = 0;
 
-            for (int64_t j = 1, first = global_idx;
-                 j < face_size - 1;
-                 j++, new_face_size += 3)
-            {
-                new_point_indices.push_back(point_indices[first]);
-                new_point_indices.push_back(point_indices[first + j]);
-                new_point_indices.push_back(point_indices[first + j + 1]);
+            for (size_t j = 1, first = globalIdx;
+                 j < faceSize - 1;
+                 j++, newFaceSize += 3) {
+                newPointIndices.push_back(pointIndices[first]);
+                newPointIndices.push_back(pointIndices[first + j]);
+                newPointIndices.push_back(pointIndices[first + j + 1]);
 
-                if (has_texcoords)
-                {
-                    new_texcoord_indices.push_back(texcoord_indices[first]);
-                    new_texcoord_indices.push_back(texcoord_indices[first + j]);
-                    new_texcoord_indices.push_back(texcoord_indices[first + j + 1]);
+                if (hasTexcoords) {
+                    newTexcoordIndices.push_back(texcoordIndices[first]);
+                    newTexcoordIndices.push_back(texcoordIndices[first + j]);
+                    newTexcoordIndices.push_back(texcoordIndices[first + j + 1]);
                 }
 
-                if (has_normals)
-                {
-                    new_normal_indices.push_back(normal_indices[first]);
-                    new_normal_indices.push_back(normal_indices[first + j]);
-                    new_normal_indices.push_back(normal_indices[first + j + 1]);
+                if (hasNormals) {
+                    newNormalIndices.push_back(normalIndices[first]);
+                    newNormalIndices.push_back(normalIndices[first + j]);
+                    newNormalIndices.push_back(normalIndices[first + j + 1]);
                 }
             }
 
-            new_face_sizes.push_back(new_face_size);
-            global_idx += face_size;
+            newFaceSizes.push_back(newFaceSize);
+            globalIdx += faceSize;
         }
 
-        return Model
-        {
+        return {
             model.points(),
             model.texcoords(),
             model.normals(),
-            new_point_indices,
-            new_texcoord_indices,
-            new_normal_indices,
-            new_face_sizes
+            newPointIndices,
+            newTexcoordIndices,
+            newNormalIndices,
+            newFaceSizes
         };
     }
 }

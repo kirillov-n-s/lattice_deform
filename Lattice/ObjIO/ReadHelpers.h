@@ -1,13 +1,14 @@
-#pragma once
-#include <string>
+#ifndef LATTICE_OBJIO_READHELPERS_H
+#define LATTICE_OBJIO_READHELPERS_H
+
 #include <fstream>
-#include <sstream>
 #include <glm/vec4.hpp>
 #include <glm/vec3.hpp>
 
-namespace Lattice::ObjIO::ReadHelpers
-{
-    glm::vec4 readPoint(std::ifstream&);
-    glm::vec3 readTexcoord(std::ifstream&);
-    glm::vec3 readNormal(std::ifstream&);
+namespace Lattice::ObjIO::ReadHelpers {
+    glm::vec4 readPoint(std::ifstream &file);
+    glm::vec3 readTexcoord(std::ifstream &file);
+    glm::vec3 readNormal(std::ifstream &file);
 }
+
+#endif

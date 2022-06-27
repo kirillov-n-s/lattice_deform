@@ -1,58 +1,59 @@
 #include <iterator>
 #include "UniformGrid.h"
 
-namespace Lattice::Deform::SpatialViews
-{
+namespace Lattice::Deform::SpatialViews {
     glm::uvec3 UniformGrid::index(const glm::vec3 &point) const
     {
-        return glm::clamp(glm::uvec3 { glm::floor((point + _offset) / _cell_size) },
-                          glm::uvec3 { 0 },
-                          _extents - 1u);
+        return glm::clamp(
+            glm::uvec3 { glm::floor((point + m_offset) / m_cellSize) },
+            glm::uvec3 { 0 },
+            m_extents - 1u);
     }
 
     size_t UniformGrid::hash(const glm::uvec3 &index) const
     {
-        return index.x + _extents.x * (index.y + _extents.y * index.z);
+        return index.x + m_extents.x * (index.y + m_extents.y * index.z);
     }
 
-    void UniformGrid::insert(const PointIterator &value)
+    void UniformGrid::insert(const PointIterator &pointIt)
     {
-        auto point = *value;
-        if (!_bbox.contains(point))
+        const auto& point = *pointIt;
+        if (!m_boundingBox.contains(point))
             return;
-        _grid[hash(index(point))].push_back(value);
+        m_grid[hash(index(point))].push_back(pointIt);
     }
 
-    UniformGrid::UniformGrid(const PointIterator &first, const PointIterator &last,
-                             const BoundingBox &bbox, float cell_size)
-        : _extents(glm::ceil(bbox.diag() / cell_size)),
-          _bbox(bbox),
-          _offset(-bbox.min),
-          _cell_size(cell_size)
-    {
-        _grid.resize(_extents.x * _extents.y * _extents.z);
-        for (auto it = first; it != last; it++)
-            insert(it);
-    }
-
-    std::vector<UniformGrid::CellIterator> UniformGrid::query(const BoundingBox &bbox) const
+    std::vector<UniformGrid::CellIterator> UniformGrid::query(const BoundingBox &boundingBox) const
     {
         std::vector<CellIterator> result;
-        if (!_bbox.overlaps(bbox))
+        if (!m_boundingBox.overlaps(boundingBox))
             return result;
-        auto begin = _grid.begin();
-        auto min = index(bbox.min);
-        auto max = index(bbox.max);
-        for (int64_t x = min.x; x <= max.x; x++)
-            for (int64_t y = min.y; y <= max.y; y++)
-                for (int64_t z = min.z; z <= max.z; z++)
-                {
-                    const auto& it = begin + hash({ x, y, z });
-                    if (!it->empty())
-                        result.push_back(it);
+        const auto& cellBegin = m_grid.begin();
+        const auto& minIndex = index(boundingBox.min);
+        const auto& maxIndex = index(boundingBox.max);
+        for (auto x = minIndex.x; x <= maxIndex.x; x++)
+            for (auto y = minIndex.y; y <= maxIndex.y; y++)
+                for (auto z = minIndex.z; z <= maxIndex.z; z++) {
+                    const auto& cellIt = cellBegin + hash({ x, y, z });
+                    if (!cellIt->empty())
+                        result.push_back(cellIt);
                 }
-
         return result;
+    }
+
+    UniformGrid::UniformGrid(
+        const PointIterator &first,
+        const PointIterator &last,
+        const BoundingBox &boundingBox,
+        const float cellSize)
+        : m_extents(glm::ceil(boundingBox.diag() / cellSize)),
+          m_boundingBox(boundingBox),
+          m_offset(-boundingBox.min),
+          m_cellSize(cellSize)
+    {
+        m_grid.resize(m_extents.x * m_extents.y * m_extents.z);
+        for (auto pointIt = first; pointIt != last; pointIt++)
+            insert(pointIt);
     }
 }
 

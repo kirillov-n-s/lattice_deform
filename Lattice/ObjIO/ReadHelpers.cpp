@@ -1,13 +1,12 @@
 #include "ReadHelpers.h"
 
-namespace Lattice::ObjIO::ReadHelpers
-{
+namespace Lattice::ObjIO::ReadHelpers {
     glm::vec4 readPoint(std::ifstream &file)
     {
         glm::vec4 vertex;
         file >> vertex.x >> vertex.y >> vertex.z;
         if (!file)
-            throw std::runtime_error("Bad vertex_t coordinates.");
+            throw std::runtime_error("Bad vertex coordinates.");
         file >> vertex.w;
         if (!file) {
             file.clear();

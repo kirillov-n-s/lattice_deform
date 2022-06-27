@@ -1,27 +1,23 @@
-#pragma once
-#include <vector>
-#include <unordered_map>
-#include <GL/glew.h>
+#ifndef LATTICE_RENDERING_OPENGL_MESH_H
+#define LATTICE_RENDERING_OPENGL_MESH_H
 
-namespace Lattice
-{
+namespace Lattice{
     class Model;
 }
 
-namespace Lattice::Rendering::OpenGL
-{
-    constexpr float PI = 3.14159265f;
-
+namespace Lattice::Rendering::OpenGL{
     class Mesh
     {
-    private:
-        int _element_count;
-        unsigned int _vbo, _vao, _ebo;
-
     public:
-        Mesh(const Model&);
+        Mesh(const Model &model);
         ~Mesh();
 
         void draw() const;
+
+    private:
+        size_t m_nElems;
+        unsigned int m_vbo, m_vao, m_ebo;
     };
 }
+
+#endif

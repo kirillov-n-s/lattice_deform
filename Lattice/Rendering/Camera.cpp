@@ -1,58 +1,71 @@
 #include "Camera.h"
+#include <glm/gtc/matrix_transform.hpp>
 
-namespace Lattice::Rendering
-{
-    void Camera::update_derived_vectors()
+namespace Lattice::Rendering{
+    void Camera::updateDerivedVectors()
     {
-        glm::vec3 front;
-        front.x = cos(glm::radians(_yaw)) * cos(glm::radians(_pitch));
-        front.y = sin(glm::radians(_pitch));
-        front.z = sin(glm::radians(_yaw)) * cos(glm::radians(_pitch));
+        const glm::vec3 front {
+            cos(glm::radians(m_yaw)) * cos(glm::radians(m_pitch)),
+            sin(glm::radians(m_pitch)),
+            sin(glm::radians(m_yaw)) * cos(glm::radians(m_pitch))
+        };
 
-        _front = glm::normalize(front);
-        _right = glm::normalize(glm::cross(_front, Directions::UP));
-        _up = glm::cross(_right, _front);
+        m_front = glm::normalize(front);
+        m_right = glm::normalize(glm::cross(
+            m_front,
+            Directions::UP));
+        m_up = glm::cross(m_right, m_front);
     }
 
-    Camera::Camera(const glm::vec3 &position, float yaw, float pitch)
-        : _position(position), _yaw(yaw), _pitch(pitch)
+    Camera::Camera(
+        const glm::vec3 &position,
+        const float yaw,
+        const float pitch)
+        : m_position(position),
+          m_yaw(yaw),
+          m_pitch(pitch)
     {
-        update_derived_vectors();
+        updateDerivedVectors();
     }
 
     glm::vec3 Camera::front() const
     {
-        return _front;
+        return m_front;
     }
 
     glm::vec3 Camera::right() const
     {
-        return _right;
+        return m_right;
     }
 
     glm::vec3 Camera::up() const
     {
-        return _up;
+        return m_up;
     }
 
     glm::mat4 Camera::view() const
     {
-        return glm::lookAt(_position, _position + _front, _up);
+        return glm::lookAt(
+            m_position,
+            m_position + m_front,
+            m_up);
     }
 
     void Camera::move(const glm::vec3 &offset)
     {
-        _position += offset;
+        m_position += offset;
     }
 
-    void Camera::rotate(float yaw_offset, float pitch_offset)
+    void Camera::rotate(
+        const float yawOffset,
+        const float pitchOffset)
     {
-        _yaw += yaw_offset;
-        _pitch += pitch_offset;
-        if (_pitch > 89.0f)
-            _pitch = 89.0f;
-        if (_pitch < -89.0f)
-            _pitch = -89.0f;
-        update_derived_vectors();
+        m_yaw += yawOffset;
+        m_pitch += pitchOffset;
+        if (m_pitch > 89.0f)
+            m_pitch = 89.0f;
+        if (m_pitch < -89.0f)
+            m_pitch = -89.0f;
+        updateDerivedVectors();
     }
 }

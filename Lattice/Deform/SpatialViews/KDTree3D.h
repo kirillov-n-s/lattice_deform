@@ -1,19 +1,33 @@
-#pragma once
+#ifndef LATTICE_DEFORM_SPATIALVIEWS_KDTREE3D_H
+#define LATTICE_DEFORM_SPATIALVIEWS_KDTREE3D_H
+
 #include <vector>
 #include "../../Model.h"
 
-namespace Lattice
-{
+namespace Lattice {
     struct BoundingBox;
 }
 
-namespace Lattice::Deform::SpatialViews
-{
+namespace Lattice::Deform::SpatialViews {
     class KDTree3D
     {
+    public:
+        using PointIterator = Model::Points::const_iterator;
+
+        KDTree3D(
+            const PointIterator &first,
+            const PointIterator &last,
+            const BoundingBox &boundingBox,
+            const size_t leafSize);
+        ~KDTree3D();
+
+        template<typename Function>
+        void traverse(
+            const BoundingBox &boundingBox,
+            Function function) const;
+
     private:
-        using PointIterator = Model::PointIterator;
-        using ItemIterator = std::vector<PointIterator>::iterator;
+        using PointItersIterator = std::vector<PointIterator>::iterator;
 
         struct Node
         {
@@ -22,47 +36,58 @@ namespace Lattice::Deform::SpatialViews
 
         struct Branch : Node
         {
-            float split;
+            float splitValue;
             Node* left  = nullptr;
             Node* right = nullptr;
 
-            Branch(float);
+            Branch(float splitValue);
             ~Branch();
         };
 
         struct Leaf : Node
         {
-            ItemIterator first, last;
-
-            Leaf(const ItemIterator&, const ItemIterator&);
+            PointItersIterator first;
+            PointItersIterator last;
+            Leaf(const PointItersIterator &first, const PointItersIterator &last);
         };
 
-    private:
-        std::vector<PointIterator> _items;
-        Node* _root;
-        size_t _leaf_size;
+        std::vector<PointIterator> m_items;
+        Node* m_root;
+        size_t m_leafSize;
 
-        Node* make_subtree(ItemIterator, ItemIterator, int);
-        void query_subtree(const Node*, const BoundingBox&, std::vector<const Leaf*>&, int) const;
-        std::vector<const Leaf*> query(const BoundingBox&) const;
-
-    public:
-        KDTree3D(const PointIterator&, const PointIterator&, const BoundingBox&, size_t);
-        ~KDTree3D();
-
-        template<typename Function>
-        void traverse(const BoundingBox&, Function) const;
+        Node* makeSubtree(
+            const PointItersIterator &first,
+            const PointItersIterator &last,
+            const uint8_t dim);
+        void querySubtree(
+            const Node *node,
+            const BoundingBox &boundingBox,
+            const uint8_t dim,
+            std::vector<const Leaf*> &result) const;
+        std::vector<const Leaf*> query(const BoundingBox &boundingBox) const;
     };
 }
 
-namespace Lattice::Deform::SpatialViews
-{
+
+
+
+
+
+
+
+
+//Implementation
+namespace Lattice::Deform::SpatialViews {
     template<typename Function>
-    void KDTree3D::traverse(const BoundingBox &boundingBox, Function function) const
+    void KDTree3D::traverse(
+        const BoundingBox &boundingBox,
+        Function function) const
     {
         const auto& leafPtrs = query(boundingBox);
-        for (const auto& leafPtr : leafPtrs)
-            for (auto itemIt = leafPtr->first; itemIt != leafPtr->last; itemIt++)
-                function(*itemIt);
+        for (auto* leafPtr : leafPtrs)
+            for (auto pointItIt = leafPtr->first; pointItIt != leafPtr->last; pointItIt++)
+                function(*pointItIt);
     }
 }
+
+#endif
