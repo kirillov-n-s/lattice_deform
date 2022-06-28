@@ -26,10 +26,6 @@ namespace Lattice::Rendering::OpenGL {
         unsigned int m_id;
 
         int uniformLocation(const std::string& name) const;
-
-        static void compileShader(
-            const unsigned int id,
-            const char **code);
     };
 }
 

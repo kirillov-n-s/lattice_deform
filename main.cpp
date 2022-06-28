@@ -23,25 +23,20 @@ int main()
     const std::string resultPath = meshesPath + "result\\jacket_female.obj";
     const std::string houdiniResultPath = meshesPath + "example\\jacket_female.obj";
 
-    size_t time = 0;
-
     auto then = Timer::now();
     const Lattice::Model toDeform = Lattice::ObjIO::read(toDeformPath);
     auto elapsed = std::chrono::duration_cast<TimeUnits>(Timer::now() - then).count();
     std::cout << "\n to-deform read : " << elapsed << ' ' << timeUnits << "\n\n";
-    time += elapsed;
 
     then = Timer::now();
     const Lattice::Model rest = Lattice::ObjIO::read(restPath);
     elapsed = std::chrono::duration_cast<TimeUnits>(Timer::now() - then).count();
     std::cout << " rest read : " << elapsed << ' ' << timeUnits << "\n\n";
-    time += elapsed;
 
     then = Timer::now();
     const Lattice::Model deformed = Lattice::ObjIO::read(deformedPath);
     elapsed = std::chrono::duration_cast<TimeUnits>(Timer::now() - then).count();
     std::cout << " deformed read : " << elapsed << ' ' << timeUnits << "\n\n";
-    time += elapsed;
 
     then = Timer::now();
     const Lattice::Model houdiniResult = Lattice::ObjIO::read(houdiniResultPath);

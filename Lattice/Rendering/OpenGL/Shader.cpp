@@ -10,39 +10,6 @@ namespace Lattice::Rendering::OpenGL
         return glGetUniformLocation(m_id, name.c_str());
     }
 
-    void Shader::compileShader(
-        const unsigned int id,
-        const char **code)
-    {
-        int isSuccess,
-            logLength;
-        std::vector<char> log;
-        glShaderSource(
-                id,
-                1,
-                code,
-                nullptr);
-        glCompileShader(id);
-        glGetShaderiv(
-                id,
-                GL_COMPILE_STATUS,
-                &isSuccess);
-        if(!isSuccess) {
-            glGetShaderiv(
-                    id,
-                    GL_INFO_LOG_LENGTH,
-                    &logLength);
-            log.resize(logLength);
-            glGetShaderInfoLog(
-                    id,
-                    logLength,
-                    nullptr,
-                    log.data());
-            glDeleteShader(id);
-            throw std::runtime_error(std::string("Vertex Shader compile error. Log:\n") + log.data() + '\n');
-        }
-    }
-
     Shader::Shader(
         const std::string &vertPath,
         const std::string &fragPath)
@@ -75,14 +42,52 @@ namespace Lattice::Rendering::OpenGL
         unsigned int vertId,
                      fragId;
 
-        vertId = glCreateShader(GL_VERTEX_SHADER);
-        compileShader(vertId, &vertCode);
-        fragId = glCreateShader(GL_FRAGMENT_SHADER);
-        compileShader(fragId, &fragCode);
-
         int isSuccess,
             logLength;
         std::vector<char> log;
+
+        auto compileShader =
+        [&isSuccess, &logLength, &log](
+            const unsigned int id,
+            const char **code,
+            const char *type)
+        {
+            glShaderSource(
+                id,
+                1,
+                code,
+                nullptr);
+            glCompileShader(id);
+            glGetShaderiv(
+                id,
+                GL_COMPILE_STATUS,
+                &isSuccess);
+            if(!isSuccess) {
+                glGetShaderiv(
+                    id,
+                    GL_INFO_LOG_LENGTH,
+                    &logLength);
+                log.resize(logLength);
+                glGetShaderInfoLog(
+                    id,
+                    logLength,
+                    nullptr,
+                    log.data());
+                glDeleteShader(id);
+                throw std::runtime_error(type + std::string(" shader compilation error. Log:\n") + log.data() + '\n');
+            }
+        };
+
+        vertId = glCreateShader(GL_VERTEX_SHADER);
+        compileShader(
+            vertId,
+            &vertCode,
+            "Vertex");
+        fragId = glCreateShader(GL_FRAGMENT_SHADER);
+        compileShader(
+            fragId,
+            &fragCode,
+            "Fragment");
 
         m_id = glCreateProgram();
         glAttachShader(m_id, vertId);
