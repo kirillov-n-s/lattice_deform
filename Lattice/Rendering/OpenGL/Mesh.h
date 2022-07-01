@@ -15,8 +15,10 @@ namespace Lattice::Rendering::OpenGL{
         void draw() const;
 
     private:
-        size_t m_nElems;
-        unsigned int m_vbo, m_vao, m_ebo;
+        size_t m_nElements;
+        unsigned int m_vertexBufferObject,
+                     m_vertexArrayObject,
+                     m_elementBufferObject;
     };
 }
 

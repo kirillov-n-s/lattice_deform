@@ -3,8 +3,7 @@
 #include <sstream>
 #include <vector>
 
-namespace Lattice::Rendering::OpenGL
-{
+namespace Lattice::Rendering::OpenGL {
     int Shader::uniformLocation(const std::string &name) const
     {
         return glGetUniformLocation(m_id, name.c_str());

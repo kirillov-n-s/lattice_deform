@@ -2,8 +2,7 @@
 #include "../Model.h"
 #include <algorithm>
 
-namespace Lattice::Rendering::Conversion
-{
+namespace Lattice::Rendering::Conversion {
     Index makeIndex(
         const Model &model,
         const size_t flatIndex)
@@ -108,5 +107,32 @@ namespace Lattice::Rendering::Conversion
             newNormalIndices,
             newFaceSizes
         };
+    }
+
+    std::pair<std::vector<Vertex>, std::vector<unsigned int>> indexedVertices(const Model &model)
+    {
+        const auto& triangleModel = isTriangle(model)
+                                    ? model
+                                    : triangulate(model);
+
+        std::vector<Vertex> vertices;
+        std::vector<unsigned int> flatIndices;
+        std::unordered_map<Index, unsigned int> indexMap;
+
+        const auto nPointIndices = triangleModel.pointIndices().size();
+        for (size_t pointIdx = 0; pointIdx < nPointIndices; pointIdx++) {
+            const auto& convIdx = makeIndex(triangleModel, pointIdx);
+            const auto& indexPairIt = indexMap.find(convIdx);
+            if (indexPairIt != indexMap.end()) {
+                flatIndices.push_back(indexPairIt->second);
+                continue;
+            }
+            const size_t flatIdx = indexMap.size();
+            indexMap[convIdx] = flatIdx;
+            flatIndices.push_back(flatIdx);
+            vertices.push_back(vertexAtIndex(triangleModel, convIdx));
+        }
+
+        return { vertices, flatIndices };
     }
 }

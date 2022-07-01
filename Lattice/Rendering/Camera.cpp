@@ -1,7 +1,7 @@
 #include "Camera.h"
 #include <glm/gtc/matrix_transform.hpp>
 
-namespace Lattice::Rendering{
+namespace Lattice::Rendering {
     void Camera::updateDerivedVectors()
     {
         const glm::vec3 front {

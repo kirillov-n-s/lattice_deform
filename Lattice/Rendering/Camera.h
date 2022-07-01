@@ -3,7 +3,7 @@
 
 #include <glm/glm.hpp>
 
-namespace Lattice::Directions{
+namespace Lattice::Directions {
     const glm::vec3 ZERO = {0.f, 0.f, 0.f };
     const glm::vec3 RIGHT = {1.f, 0.f, 0.f };
     const glm::vec3 LEFT = {-1.f, 0.f, 0.f };
@@ -13,7 +13,7 @@ namespace Lattice::Directions{
     const glm::vec3 FRONT = {0.f, 0.f, -1.f };
 }
 
-namespace Lattice::Rendering{
+namespace Lattice::Rendering {
     class Camera
     {
     public:

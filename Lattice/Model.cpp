@@ -1,7 +1,7 @@
 #include "Model.h"
 #include <algorithm>
 
-namespace Lattice{
+namespace Lattice {
     Model::Model(
         const Points &points,
         const Texcoords &texcoords,

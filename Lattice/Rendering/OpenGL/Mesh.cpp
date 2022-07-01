@@ -5,38 +5,17 @@
 #include <vector>
 #include <unordered_map>
 
-namespace Lattice::Rendering::OpenGL{
+namespace Lattice::Rendering::OpenGL {
     Mesh::Mesh(const Model &model)
     {
-        const auto& triangleModel = Conversion::isTriangle(model)
-                                    ? model
-                                    : Conversion::triangulate(model);
+        const auto& [vertices, indices] = Conversion::indexedVertices(model);
+        m_nElements = indices.size();
 
-        std::vector<Conversion::Vertex> vertices;
-        std::vector<unsigned int> flatIndices;
-        std::unordered_map<Conversion::Index, unsigned int> indexMap;
+        glGenVertexArrays(1, &m_vertexArrayObject);
+        glBindVertexArray(m_vertexArrayObject);
 
-        const auto nPointIndices = triangleModel.pointIndices().size();
-        for (size_t pointIdx = 0; pointIdx < nPointIndices; pointIdx++) {
-            const auto& convIdx = Conversion::makeIndex(triangleModel, pointIdx);
-            const auto& indexPairIt = indexMap.find(convIdx);
-            if (indexPairIt != indexMap.end()) {
-                flatIndices.push_back(indexPairIt->second);
-                continue;
-            }
-            const size_t flatIdx = indexMap.size();
-            indexMap[convIdx] = flatIdx;
-            flatIndices.push_back(flatIdx);
-            vertices.push_back(vertexAtIndex(triangleModel, convIdx));
-        }
-
-        m_nElems = flatIndices.size();
-
-        glGenVertexArrays(1, &m_vao);
-        glBindVertexArray(m_vao);
-
-        glGenBuffers(1, &m_vbo);
-        glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+        glGenBuffers(1, &m_vertexBufferObject);
+        glBindBuffer(GL_ARRAY_BUFFER, m_vertexBufferObject);
         glBufferData(
             GL_ARRAY_BUFFER,
             vertices.size() * sizeof(Conversion::Vertex),
@@ -68,32 +47,32 @@ namespace Lattice::Rendering::OpenGL{
             (void*)offsetof(Conversion::Vertex, normal));
         glEnableVertexAttribArray(2);
 
-        glGenBuffers(1, &m_ebo);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo);
+        glGenBuffers(1, &m_elementBufferObject);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_elementBufferObject);
         glBufferData(
-            GL_ELEMENT_ARRAY_BUFFER,
-            m_nElems * sizeof(unsigned int),
-            flatIndices.data(),
-            GL_STATIC_DRAW);
+                GL_ELEMENT_ARRAY_BUFFER,
+                m_nElements * sizeof(unsigned int),
+                indices.data(),
+                GL_STATIC_DRAW);
 
         glBindVertexArray(0);
     }
 
     Mesh::~Mesh()
     {
-        glDeleteVertexArrays(1, &m_vao);
-        glDeleteBuffers(1, &m_vbo);
-        glDeleteBuffers(1, &m_ebo);
+        glDeleteVertexArrays(1, &m_vertexArrayObject);
+        glDeleteBuffers(1, &m_vertexBufferObject);
+        glDeleteBuffers(1, &m_elementBufferObject);
     }
 
     void Mesh::draw() const
     {
-        glBindVertexArray(m_vao);
+        glBindVertexArray(m_vertexArrayObject);
         glDrawElements(
-            GL_TRIANGLES,
-            m_nElems,
-            GL_UNSIGNED_INT,
-            nullptr);
+                GL_TRIANGLES,
+                m_nElements,
+                GL_UNSIGNED_INT,
+                nullptr);
         glBindVertexArray(0);
     }
 }

@@ -30,8 +30,7 @@ namespace Lattice::Deform {
 
 
 //Implementation
-namespace Lattice::Deform
-{
+namespace Lattice::Deform {
     template<
         typename SpatialView,
         typename Kernel,
@@ -71,7 +70,7 @@ namespace Lattice::Deform
         const auto& resultPointsBegin = resultPoints.begin();
         for (auto toDeformPointIt = toDeformPointsBegin; toDeformPointIt != toDeformPointsEnd; toDeformPointIt++) {
             glm::vec3 offset { 0.f };
-            float weights = 0.f, weight;
+            float weights = 0.f;
 
             spatialView.traverse(
                 {
@@ -83,23 +82,24 @@ namespace Lattice::Deform
                  &restPointsBegin,
                  &offset,
                  &radius,
-                 &weight,
                  &kernel,
                  &weights]
                 (const auto& restPointIt)
                 {
                     const float distance = glm::distance(*toDeformPointIt, *restPointIt);
-                    offset
-                    += glm::vec3 { (*(deformedPointsBegin + (restPointIt - restPointsBegin)) - *restPointIt) }
-                    * (distance <= radius
-                       ? (weight = kernel(distance, radius), weights += weight, weight)
-                       : 0.f);
+                    if (distance > radius)
+                        return;
+                    const float weight = kernel(distance, radius);
+                    weights += weight;
+                    offset += weight * glm::vec3 {
+                        deformedPointsBegin[restPointIt - restPointsBegin] - *restPointIt
+                    };
                 }
             );
 
             if (weights != 0.f)
-                *(resultPointsBegin + (toDeformPointIt - toDeformPointsBegin))
-                += glm::vec4 {offset / weights, 0.f };
+                resultPointsBegin[toDeformPointIt - toDeformPointsBegin]
+                += glm::vec4 { offset / weights, 0.f };
         }
 
         return Model {

@@ -9,7 +9,7 @@ namespace Lattice{
     class Model;
 }
 
-namespace Lattice::Rendering::Conversion{
+namespace Lattice::Rendering::Conversion {
     struct Vertex
     {
         glm::vec4 point;
@@ -40,6 +40,8 @@ namespace Lattice::Rendering::Conversion{
 
     bool isTriangle(const Model &model);
     Model triangulate(const Model &model);
+
+    std::pair<std::vector<Vertex>, std::vector<unsigned int>> indexedVertices(const Model &model);
 }
 
 template<>

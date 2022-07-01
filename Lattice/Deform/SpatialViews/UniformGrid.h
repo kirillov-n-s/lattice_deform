@@ -5,7 +5,7 @@
 #include "../BoundingBox.h"
 #include "../../Model.h"
 
-namespace Lattice::Deform::SpatialViews{
+namespace Lattice::Deform::SpatialViews {
     class UniformGrid
     {
     public:

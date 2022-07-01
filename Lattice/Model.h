@@ -5,7 +5,7 @@
 #include <glm/vec4.hpp>
 #include <glm/vec3.hpp>
 
-namespace Lattice{
+namespace Lattice {
     class Model
     {
     public:
