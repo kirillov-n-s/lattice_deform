@@ -1,14 +1,13 @@
 #include "Mesh.h"
-#include "../Conversion.h"
+#include "../../Conversion.h"
 #include "../../Model.h"
 #include <GL/glew.h>
 #include <vector>
-#include <unordered_map>
 
 namespace Lattice::Rendering::OpenGL {
     Mesh::Mesh(const Model &model)
     {
-        const auto& [vertices, indices] = Conversion::indexedVertices(model);
+        const auto& [vertices, indices] = indexedVertices(model);
         m_nElements = indices.size();
 
         glGenVertexArrays(1, &m_vertexArrayObject);
@@ -18,7 +17,7 @@ namespace Lattice::Rendering::OpenGL {
         glBindBuffer(GL_ARRAY_BUFFER, m_vertexBufferObject);
         glBufferData(
             GL_ARRAY_BUFFER,
-            vertices.size() * sizeof(Conversion::Vertex),
+            vertices.size() * sizeof(Vertex),
             vertices.data(),
             GL_STATIC_DRAW);
 
@@ -27,7 +26,7 @@ namespace Lattice::Rendering::OpenGL {
             4,
             GL_FLOAT,
             GL_FALSE,
-            sizeof(Conversion::Vertex),
+            sizeof(Vertex),
             nullptr);
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(
@@ -35,16 +34,16 @@ namespace Lattice::Rendering::OpenGL {
             3,
             GL_FLOAT,
             GL_FALSE,
-            sizeof(Conversion::Vertex),
-            (void*)offsetof(Conversion::Vertex, texcoord));
+            sizeof(Vertex),
+            (void*)offsetof(Vertex, texcoord));
         glEnableVertexAttribArray(1);
         glVertexAttribPointer(
             2,
             3,
             GL_FLOAT,
             GL_FALSE,
-            sizeof(Conversion::Vertex),
-            (void*)offsetof(Conversion::Vertex, normal));
+            sizeof(Vertex),
+            (void*)offsetof(Vertex, normal));
         glEnableVertexAttribArray(2);
 
         glGenBuffers(1, &m_elementBufferObject);

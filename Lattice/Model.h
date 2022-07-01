@@ -17,6 +17,11 @@ namespace Lattice {
 
         Model(
             const Points &points,
+            const Indices &pointIndices,
+            const FaceSizes &faceSizes);
+
+        Model(
+            const Points &points,
             const Texcoords &texcoords,
             const Normals &normals,
             const Indices &pointIndices,
@@ -48,6 +53,14 @@ namespace Lattice {
 
         FaceSizes _face_sizes;
     };
+
+    bool operator==(
+        const Model &lhs,
+        const Model &rhs);
+
+    bool operator!=(
+        const Model &lhs,
+        const Model &rhs);
 }
 
 #endif

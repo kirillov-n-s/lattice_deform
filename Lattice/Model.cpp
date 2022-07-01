@@ -4,24 +4,31 @@
 namespace Lattice {
     Model::Model(
         const Points &points,
+        const Indices &pointIndices,
+        const FaceSizes &faceSizes)
+        : m_points(points),
+          m_pointIndices(pointIndices),
+          _face_sizes(faceSizes)
+    {}
+
+    Model::Model(
+        const Points &points,
         const Texcoords &texcoords,
         const Normals &normals,
-        const Indices &point_indices,
-        const Indices &texcoord_indices,
-        const Indices &normal_indices,
-        const FaceSizes &face_sizes)
-        : m_points(points),
-          m_pointIndices(point_indices),
-          _face_sizes(face_sizes)
+        const Indices &pointIndices,
+        const Indices &texcoordIndices,
+        const Indices &normalIndices,
+        const FaceSizes &faceSizes)
+        : Model(points, pointIndices, faceSizes)
     {
-        if (!texcoords.empty() && !texcoord_indices.empty()) {
+        if (!texcoords.empty() && !texcoordIndices.empty()) {
             m_texcoords = texcoords;
-            m_texcoordIndices = texcoord_indices;
+            m_texcoordIndices = texcoordIndices;
         }
 
-        if (!normals.empty() && !normal_indices.empty()) {
+        if (!normals.empty() && !normalIndices.empty()) {
             m_normals = normals;
-            m_normalIndices = normal_indices;
+            m_normalIndices = normalIndices;
         }
     }
 
@@ -68,5 +75,25 @@ namespace Lattice {
     bool Model::hasNormals() const
     {
         return !m_normals.empty();
+    }
+
+    bool operator==(
+        const Model &lhs,
+        const Model &rhs)
+    {
+        return lhs.points() == rhs.points()
+            && lhs.texcoords() == rhs.texcoords()
+            && lhs.normals() == rhs.normals()
+            && lhs.pointIndices() == rhs.pointIndices()
+            && lhs.texcoordIndices() == rhs.texcoordIndices()
+            && lhs.normalIndices() == rhs.normalIndices()
+            && lhs.faceSizes() == rhs.faceSizes();
+    }
+
+    bool operator!=(
+        const Model &lhs,
+        const Model &rhs)
+    {
+        return !(lhs == rhs);
     }
 }

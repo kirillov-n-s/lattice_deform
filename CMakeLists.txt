@@ -14,10 +14,17 @@ add_executable(internship main.cpp
         Lattice/Deform/BoundingBox.h Lattice/Deform/BoundingBox.cpp
         Lattice/Deform/SpatialViews/UniformGrid.h Lattice/Deform/SpatialViews/UniformGrid.cpp
         Lattice/Deform/SpatialViews/KDTree3D.h Lattice/Deform/SpatialViews/KDTree3D.cpp
-        Lattice/Rendering/Conversion.h Lattice/Rendering/Conversion.cpp
+        Lattice/Conversion.h Lattice/Conversion.cpp
         Lattice/ObjIO/ReadHelpers.h Lattice/ObjIO/ReadHelpers.cpp
-        Lattice/ObjIO/WriteHelpers.h Lattice/ObjIO/WriteHelpers.cpp)
+        Lattice/ObjIO/WriteHelpers.h Lattice/ObjIO/WriteHelpers.cpp
+        Test/ObjIO.cpp
+        Test/Conversion.cpp
+        Test/Deform.cpp
+        Test/Test.cpp)
 
 target_link_libraries(internship opengl32.lib)
 target_link_libraries(internship glew32.lib)
 target_link_libraries(internship glfw3.lib)
+
+find_package(Catch2 3 REQUIRED)
+target_link_libraries(internship Catch2::Catch2WithMain)

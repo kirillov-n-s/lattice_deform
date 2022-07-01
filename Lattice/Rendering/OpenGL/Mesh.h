@@ -5,7 +5,7 @@ namespace Lattice{
     class Model;
 }
 
-namespace Lattice::Rendering::OpenGL{
+namespace Lattice::Rendering::OpenGL {
     class Mesh
     {
     public:

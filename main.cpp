@@ -9,6 +9,7 @@
 using Timer = std::chrono::system_clock;
 using TimeUnits = std::chrono::milliseconds;
 
+/*
 int main()
 {
     const std::string timeUnits = "ms";
@@ -89,3 +90,4 @@ int main()
 
     std::cin.get();
 }
+*/

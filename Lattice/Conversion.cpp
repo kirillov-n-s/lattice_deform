@@ -1,20 +1,22 @@
 #include "Conversion.h"
-#include "../Model.h"
+#include "Model.h"
 #include <algorithm>
 
-namespace Lattice::Rendering::Conversion {
+namespace Lattice {
     Index makeIndex(
         const Model &model,
         const size_t flatIndex)
     {
         return {
             model.pointIndices()[flatIndex],
+
             model.hasTexcoords()
-                ? model.texcoordIndices()[flatIndex]
-                : -1,
+            ? model.texcoordIndices()[flatIndex]
+            : -1,
+
             model.hasNormals()
-                ? model.normalIndices()[flatIndex]
-                : -1
+            ? model.normalIndices()[flatIndex]
+            : -1
         };
     }
 
@@ -24,12 +26,14 @@ namespace Lattice::Rendering::Conversion {
     {
         return {
             model.points()[index.point],
+
             index.texcoord != -1
-                ? model.texcoords()[index.texcoord]
-                : glm::vec3 { 0.f },
+            ? model.texcoords()[index.texcoord]
+            : glm::vec3 { 0.f },
+
             index.normal != -1
-                ? model.normals()[index.normal]
-                : glm::vec3 { 0.f }
+            ? model.normals()[index.normal]
+            : glm::vec3 { 0.f }
         };
     }
 

@@ -1,15 +1,15 @@
-#ifndef LATTICE_RENDERING_CONVERSION_H
-#define LATTICE_RENDERING_CONVERSION_H
+#ifndef LATTICE_CONVERSION_H
+#define LATTICE_CONVERSION_H
 
 #include <functional>
 #include <glm/vec4.hpp>
 #include <glm/vec3.hpp>
 
-namespace Lattice{
+namespace Lattice {
     class Model;
 }
 
-namespace Lattice::Rendering::Conversion {
+namespace Lattice {
     struct Vertex
     {
         glm::vec4 point;
@@ -45,9 +45,9 @@ namespace Lattice::Rendering::Conversion {
 }
 
 template<>
-struct std::hash<Lattice::Rendering::Conversion::Index>
+struct std::hash<Lattice::Index>
 {
-    size_t operator()(const Lattice::Rendering::Conversion::Index &index) const
+    size_t operator()(const Lattice::Index &index) const
     {
         return std::hash<int64_t>{}(index.point)
              ^ std::hash<int64_t>{}(index.texcoord)
