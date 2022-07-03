@@ -13,7 +13,7 @@ namespace Lattice::Deform {
         typename Kernel,
         typename... SpatialViewArgs>
     Model lattice(
-        const Model &restPointIt,
+        const Model &toDeform,
         const Model &rest,
         const Model &deformed,
         const Kernel &kernel,

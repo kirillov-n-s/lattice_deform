@@ -1,3 +1,5 @@
+#ifdef _DEBUG
+
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers.hpp>
 #include <catch2/matchers/catch_matchers_exception.hpp>
@@ -6,51 +8,51 @@
 #include "../Lattice/ObjIO/ObjIO.h"
 
 namespace Test {
-    TEST_CASE("ObjIO: successful")
+    TEST_CASE("ObjIO: good read-write")
     {
-        std::vector<glm::vec4> points {
+        const Lattice::Model::Points points {
             { 1, 1, 1, 1 },
             { 2, 1, 1, 1 },
             { 1, 2, 1, 1 },
             { 1, 1, 2, 1 }
         };
-        std::vector<glm::vec3> texcoords {
+        const Lattice::Model::Texcoords texcoords {
             { 1, 1, 0 },
             { 1, 2, 0 },
             { 2, 1, 0 },
             { 2, 2, 0 }
         };
-        std::vector<glm::vec3> normals {
+        const Lattice::Model::Normals normals {
             { 1, 1, 1 },
             { 1, 2, 1 },
             { 2, 1, 1 },
             { 2, 2, 1 }
         };
 
-        std::vector<int64_t> pointIndices {
+        const Lattice::Model::Indices pointIndices {
             0, 2, 1,
             0, 3, 2,
             0, 1, 3, 2,
             1, 2, 3, 0
         };
-        std::vector<int64_t> texcoordIndices {
+        const Lattice::Model::Indices texcoordIndices {
             0, 2, 1,
             0, 3, 2,
             0, 1, 3, 2,
             1, 2, 3, 0
         };
-        std::vector<int64_t> normalIndices {
+        const Lattice::Model::Indices normalIndices {
             0, 2, 1,
             0, 3, 2,
             0, 1, 3, 2,
             1, 2, 3, 0
         };
 
-        std::vector<size_t> faceSizes { 3, 3, 4, 4 };
+        const Lattice::Model::FaceSizes faceSizes { 3, 3, 4, 4 };
 
-        SECTION("read: points only")
+        SECTION("Read: points only")
         {
-            const Lattice::Model& model = Lattice::ObjIO::read("../Test/Files/Good/v.obj");
+            const Lattice::Model& model = Lattice::ObjIO::read("../Test/Files/GoodRead/v.obj");
 
             REQUIRE(points == model.points());
             REQUIRE(pointIndices == model.pointIndices());
@@ -65,9 +67,9 @@ namespace Test {
             REQUIRE(!model.hasTexcoords());
         }
 
-        SECTION("read: points and texcoords")
+        SECTION("Read: points and texcoords")
         {
-            const Lattice::Model& model = Lattice::ObjIO::read("../Test/Files/Good/v_vt.obj");
+            const Lattice::Model& model = Lattice::ObjIO::read("../Test/Files/GoodRead/v_vt.obj");
 
             REQUIRE(points == model.points());
             REQUIRE(pointIndices == model.pointIndices());
@@ -82,9 +84,9 @@ namespace Test {
             REQUIRE(model.hasTexcoords());
         }
 
-        SECTION("read: points and normals")
+        SECTION("Read: points and normals")
         {
-            const Lattice::Model& model = Lattice::ObjIO::read("../Test/Files/Good/v_vn.obj");
+            const Lattice::Model& model = Lattice::ObjIO::read("../Test/Files/GoodRead/v_vn.obj");
 
             REQUIRE(points == model.points());
             REQUIRE(pointIndices == model.pointIndices());
@@ -99,9 +101,9 @@ namespace Test {
             REQUIRE(!model.hasTexcoords());
         }
 
-        SECTION("read: points, texcoords and normals")
+        SECTION("Read: points, texcoords and normals")
         {
-            const Lattice::Model& model = Lattice::ObjIO::read("../Test/Files/Good/v_vt_vn.obj");
+            const Lattice::Model& model = Lattice::ObjIO::read("../Test/Files/GoodRead/v_vt_vn.obj");
 
             REQUIRE(points == model.points());
             REQUIRE(pointIndices == model.pointIndices());
@@ -115,24 +117,24 @@ namespace Test {
             REQUIRE(model.hasTexcoords());
         }
 
-        SECTION("write: points only")
+        SECTION("Write: points only")
         {
-            Lattice::Model original {
+            const Lattice::Model original {
                 points,
                 pointIndices,
                 faceSizes
             };
 
-            const char* path = "../Test/Files/Written/v.obj";
+            const char* path = "../Test/Files/Write/v.obj";
             Lattice::ObjIO::write(original, path);
             const Lattice::Model& written = Lattice::ObjIO::read(path);
 
             REQUIRE(original == written);
         }
 
-        SECTION("write: points and texcoords")
+        SECTION("Write: points and texcoords")
         {
-            Lattice::Model original {
+            const Lattice::Model original {
                 points,
                 texcoords,
                 {},
@@ -142,16 +144,16 @@ namespace Test {
                 faceSizes
             };
 
-            const char* path = "../Test/Files/Written/v_vt.obj";
+            const char* path = "../Test/Files/Write/v_vt.obj";
             Lattice::ObjIO::write(original, path);
             const Lattice::Model& written = Lattice::ObjIO::read(path);
 
             REQUIRE(original == written);
         }
 
-        SECTION("write: points and normals")
+        SECTION("Write: points and normals")
         {
-            Lattice::Model original {
+            const Lattice::Model original {
                 points,
                 {},
                 normals,
@@ -161,16 +163,16 @@ namespace Test {
                 faceSizes
             };
 
-            const char* path = "../Test/Files/Written/v_vn.obj";
+            const char* path = "../Test/Files/Write/v_vn.obj";
             Lattice::ObjIO::write(original, path);
             const Lattice::Model& written = Lattice::ObjIO::read(path);
 
             REQUIRE(original == written);
         }
 
-        SECTION("write: points, texcoords and normals")
+        SECTION("Write: points, texcoords and normals")
         {
-            Lattice::Model original {
+            const Lattice::Model original {
                 points,
                 texcoords,
                 normals,
@@ -180,7 +182,7 @@ namespace Test {
                 faceSizes
             };
 
-            const char* path = "../Test/Files/Written/v_vt_vn.obj";
+            const char* path = "../Test/Files/Write/v_vt_vn.obj";
             Lattice::ObjIO::write(original, path);
             const Lattice::Model& written = Lattice::ObjIO::read(path);
 
@@ -188,54 +190,53 @@ namespace Test {
         }
     }
 
-    TEST_CASE("ObjIO: bad read")
+    TEST_CASE("ObjIO: Read: bad point")
     {
-        SECTION("bad point")
-        {
-            REQUIRE_THROWS_MATCHES(
-                Lattice::ObjIO::read("../Test/Files/Bad/v.obj"),
-                std::runtime_error,
-                Catch::Matchers::Message("Bad vertex coordinates."));
-        }
-
-        SECTION("bad texcoord")
-        {
-            REQUIRE_THROWS_MATCHES(
-                Lattice::ObjIO::read("../Test/Files/Bad/vt.obj"),
-                std::runtime_error,
-                Catch::Matchers::Message("Bad texture coordinates."));
+        REQUIRE_THROWS_MATCHES(
+            Lattice::ObjIO::read("../Test/Files/BadRead/v.obj"),
+            std::runtime_error,
+            Catch::Matchers::Message("Bad vertex coordinates."));
     }
 
-        SECTION("bad normal")
-        {
-            REQUIRE_THROWS_MATCHES(
-                Lattice::ObjIO::read("../Test/Files/Bad/vn.obj"),
-                std::runtime_error,
-                Catch::Matchers::Message("Bad normal coordinates."));
-        }
+    TEST_CASE("ObjIO: Read: bad texcoord")
+    {
+        REQUIRE_THROWS_MATCHES(
+            Lattice::ObjIO::read("../Test/Files/BadRead/vt.obj"),
+            std::runtime_error,
+            Catch::Matchers::Message("Bad texture coordinates."));
+    }
 
-        SECTION("bad face")
-        {
-            REQUIRE_THROWS_MATCHES(
-                Lattice::ObjIO::read("../Test/Files/Bad/bad.obj"),
-                std::runtime_error,
-                Catch::Matchers::Message("Bad face format."));
-        }
+    TEST_CASE("ObjIO: Read: bad normal")
+    {
+        REQUIRE_THROWS_MATCHES(
+            Lattice::ObjIO::read("../Test/Files/BadRead/vn.obj"),
+            std::runtime_error,
+            Catch::Matchers::Message("Bad normal coordinates."));
+    }
 
-        SECTION("inconsistent face")
-        {
-            REQUIRE_THROWS_MATCHES(
-                Lattice::ObjIO::read("../Test/Files/Bad/incon.obj"),
-                std::runtime_error,
-                Catch::Matchers::Message("Inconsistent face format."));
-        }
+    TEST_CASE("ObjIO: Read: bad face")
+    {
+        REQUIRE_THROWS_MATCHES(
+            Lattice::ObjIO::read("../Test/Files/BadRead/bad.obj"),
+            std::runtime_error,
+            Catch::Matchers::Message("Bad face format."));
+    }
 
-        SECTION("not enough face elements")
-        {
-            REQUIRE_THROWS_MATCHES(
-                Lattice::ObjIO::read("../Test/Files/Bad/small.obj"),
-                std::runtime_error,
-                Catch::Matchers::Message("Not enough face elements."));
-        }
+    TEST_CASE("ObjIO: Read: inconsistent face")
+    {
+        REQUIRE_THROWS_MATCHES(
+            Lattice::ObjIO::read("../Test/Files/BadRead/incon.obj"),
+            std::runtime_error,
+            Catch::Matchers::Message("Inconsistent face format."));
+    }
+
+    TEST_CASE("ObjIO: Read: not enough face elements")
+    {
+        REQUIRE_THROWS_MATCHES(
+            Lattice::ObjIO::read("../Test/Files/BadRead/small.obj"),
+            std::runtime_error,
+            Catch::Matchers::Message("Not enough face elements."));
     }
 }
+
+#endif

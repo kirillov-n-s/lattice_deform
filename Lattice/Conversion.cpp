@@ -1,6 +1,18 @@
 #include "Conversion.h"
 #include "Model.h"
+#include <functional>
 #include <algorithm>
+
+template<>
+struct std::hash<Lattice::Index>
+{
+    size_t operator()(const Lattice::Index &index) const
+    {
+        return std::hash<int64_t>{}(index.point)
+               ^ std::hash<int64_t>{}(index.texcoord)
+               ^ std::hash<int64_t>{}(index.normal);
+    }
+};
 
 namespace Lattice {
     Index makeIndex(
@@ -37,14 +49,34 @@ namespace Lattice {
         };
     }
 
-    bool operator==(const Index &lhs, const Index &rhs)
+    bool operator==(
+        const Index &lhs,
+        const Index &rhs)
     {
         return lhs.point == rhs.point
             && lhs.texcoord == rhs.texcoord
             && lhs.normal == rhs.normal;
     }
 
-    bool operator!=(const Index &lhs, const Index &rhs)
+    bool operator!=(
+        const Index &lhs,
+        const Index &rhs)
+    {
+        return !(lhs == rhs);
+    }
+
+    bool operator==(
+        const Vertex &lhs,
+        const Vertex &rhs)
+    {
+        return lhs.point == rhs.point
+            && lhs.texcoord == rhs.texcoord
+            && lhs.normal == rhs.normal;
+    }
+
+    bool operator!=(
+        const Vertex &lhs,
+        const Vertex &rhs)
     {
         return !(lhs == rhs);
     }
@@ -76,11 +108,8 @@ namespace Lattice {
         const size_t nFaces = faceSizes.size();
         for (size_t i = 0, globalIdx = 0; i < nFaces; i++) {
             const size_t faceSize = faceSizes[i];
-            size_t newFaceSize = 0;
 
-            for (size_t j = 1, first = globalIdx;
-                 j < faceSize - 1;
-                 j++, newFaceSize += 3) {
+            for (size_t j = 1, first = globalIdx; j < faceSize - 1; j++) {
                 newPointIndices.push_back(pointIndices[first]);
                 newPointIndices.push_back(pointIndices[first + j]);
                 newPointIndices.push_back(pointIndices[first + j + 1]);
@@ -96,9 +125,10 @@ namespace Lattice {
                     newNormalIndices.push_back(normalIndices[first + j]);
                     newNormalIndices.push_back(normalIndices[first + j + 1]);
                 }
+
+                newFaceSizes.push_back(3);
             }
 
-            newFaceSizes.push_back(newFaceSize);
             globalIdx += faceSize;
         }
 
@@ -119,19 +149,21 @@ namespace Lattice {
                                     ? model
                                     : triangulate(model);
 
+        using uint = unsigned int;
+
         std::vector<Vertex> vertices;
-        std::vector<unsigned int> flatIndices;
-        std::unordered_map<Index, unsigned int> indexMap;
+        std::vector<uint> flatIndices;
+        std::unordered_map<Index, uint> indexMap;
 
         const auto nPointIndices = triangleModel.pointIndices().size();
         for (size_t pointIdx = 0; pointIdx < nPointIndices; pointIdx++) {
-            const auto& convIdx = makeIndex(triangleModel, pointIdx);
+            const Index& convIdx = makeIndex(triangleModel, pointIdx);
             const auto& indexPairIt = indexMap.find(convIdx);
             if (indexPairIt != indexMap.end()) {
                 flatIndices.push_back(indexPairIt->second);
                 continue;
             }
-            const size_t flatIdx = indexMap.size();
+            const uint flatIdx = indexMap.size();
             indexMap[convIdx] = flatIdx;
             flatIndices.push_back(flatIdx);
             vertices.push_back(vertexAtIndex(triangleModel, convIdx));
